@@ -37,17 +37,12 @@ namespace WpfApp3
             frame.Content = new Page2(990080);
             gridLibrary.Effect = new BlurEffect();
 
-
-
-            frame.Height = 850;
-
             frame.Width = 850;
-            
 
 
             frame.HorizontalAlignment = HorizontalAlignment.Center;
             frame.VerticalAlignment = VerticalAlignment.Center;
-            frame.Margin = new Thickness(listBox.Width + 10, 100 , 0,1);
+            frame.Margin = new Thickness(listBox.Width + 10, 70 , 0,1);
             frame.Visibility = Visibility.Visible;
         }
 
