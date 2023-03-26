@@ -2,8 +2,8 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,47 +16,33 @@ namespace WpfApp3
     /// </summary>
     public partial class Page2 : Page
     {
-        public Page2(int appid)
+        public Page2(Page1.PatchNote patchNote)
         {
             InitializeComponent();
-            GetNotes();
+            GetNotes(patchNote);
         }
 
-        private void GetNotes()
+        private void GetNotes(Page1.PatchNote patchNote)
         {
             string input = "";
             string patch_name = "";
             string patch_title = "";
 
-            foreach (JObject newsItem in Page1.newsItems)
-            {
-                
-                string feedname = (string)newsItem["feedname"];
 
-                if (feedname == "steam_community_announcements")
-                {
-                    JToken contentToken = newsItem["contents"];
-                    string mid = contentToken.ToString(Newtonsoft.Json.Formatting.None);
-                    mid = mid.Replace("\\n", "^br^");
-                    input = mid;
+            input = patchNote.Content;
 
-                    double epochTime = (double)newsItem["date"];
-                    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochTime);
-                    string formattedDate = dateTime.ToString("ddd, MMMM dd");
+            patch_title = patchNote.Title;
 
-                    patch_title = (string)newsItem["title"];
-
-
-                    var attrs = new BBAttribute[]
+            var attrs = new BBAttribute[]
                 {
                     new BBAttribute("url",""),
                 };
-                    var attrsyoutube = new BBAttribute[]
+            var attrsyoutube = new BBAttribute[]
                     {
                     new BBAttribute("videocode",""),
                     new BBAttribute("full","")
                     };
-                    var bbTags = new List<BBTag>()
+            var bbTags = new List<BBTag>()
                 {
                 new BBTag("h1","<h1>","</h1>"),
                 new BBTag("h2","<h2>","</h2>"),
@@ -71,9 +57,12 @@ namespace WpfApp3
                 new BBTag("strike","<s>","</s>"),
                 new BBTag("*", "<li>", "</li>", true, false),
                 new BBTag("url","<a href=\"${url}\">","</a>",attrs),
-                new BBTag("previewyoutube","<iframe width=\"760\"height=\"470\" src=\"https://www.youtube.com/embed/${videocode}\" >","</iframe>",attrsyoutube),
 
+                
+                //new BBTag("previewyoutube","<iframe width=\"760\"height=\"470\" src=\"https://www.youtube.com/embed/${videocode}\" >","</iframe>",attrsyoutube),
+                //idk how to embed youtube videos in the stupid wpf WebBrowser
 
+                new BBTag("previewyoutube","<a href=\"https://www.youtube.com/embed/${url}\">https://www.youtube.com/embed/${url}","</a>",attrs),
 
                 new BBTag("code", "<pre class=\"prettyprint\">", "</pre>"),
 
@@ -81,47 +70,50 @@ namespace WpfApp3
                 new BBTag("img", "<img src=\"${content}\" width=\"800\"height=\"450\"/>", "", false, true),
 
                 };
-                    var parser = new BBCodeParser(bbTags);
+            var parser = new BBCodeParser(bbTags);
 
 
                     
-                    input = ReplaceInvalidTags(input, bbTags);
+            input = ReplaceInvalidTags(input, bbTags);
 
-                    // Convert BBCode to HTML
-                    var output = parser.ToHtml(input);
-
-
-                    // Replace the placeholder text with the original invalid tags
-                    output = Regex.Replace(output, @"\|(.+?)\|", "[$1]");
-                    output = Regex.Replace(output, @"\^(.+?)\^", "<$1>");
-                    output = output.Replace("&quot;", "");
-
-                    // Check if you should have a picture or not
-                    string[] tagstoken = { "" };
-                    if (newsItem.ContainsKey("tags"))
-                    {
-                        tagstoken = ((JArray)newsItem["tags"]).Select(t => (string)t).ToArray();
-                        // Do something with the tagstoken array
-                    }
-                    if (tagstoken[0] == "patchnotes")
-                    {
-                        patch_name = "SMALL UPDATE / PATCH NOTES";
-                        output = "<!DOCTYPE html><html><head><title>My Page</title><style>body {margin: 0;padding: 0;}.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + formattedDate + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
-                        output = output + "</div></body></html>";
-                        //pbNewsInside.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        patch_name = "NEWS";
-                        output = "<!DOCTYPE html><html><head><title>My Page</title><style>body {margin: 0;padding: 0;}.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"header\"></div><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + formattedDate + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
-                        output = output + "</div></body></html>";
-                    }
+            // Convert BBCode to HTML
+            var output = parser.ToHtml(input);
 
 
-                    webBrowser1.NavigateToString(output);
+            // Replace the placeholder text with the original invalid tags
+            output = Regex.Replace(output, @"\|(.+?)\|", "[$1]");
+            output = Regex.Replace(output, @"\^(.+?)\^", "<$1>");
+            output = output.Replace("&quot;", "");
 
+            // Check if you should have a picture or not
+            if (patchNote.IsNews == false)
+            {
+                patch_name = "SMALL UPDATE / PATCH NOTES";
+                output = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>My Page</title><style>body {margin: 0;padding: 0;}.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + patchNote.Date + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
+                output = output + "</div></body></html>";
+            }
+            else
+            {
+                patch_name = "NEWS";
+                output = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>My Page</title><style>body {margin: 0;padding: 0;}.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"header\"></div><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + patchNote.Date + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
+                output = output + "</div></body></html>";
+            }
 
-                }
+            MessageBox.Show(output);
+
+            webBrowser1.NavigateToString(output);
+        }
+
+        private void webBrowser_Navigating(object sender, System.Windows.Navigation.NavigatingCancelEventArgs e)
+        {
+            // Check if the URI is a link and not a local file
+            if (e.Uri != null && !e.Uri.IsFile)
+            {
+                // Prevent the WebBrowser from navigating to the link
+                e.Cancel = true;
+
+                // Open the link in the user's default browser
+                Process.Start("explorer", e.Uri.AbsoluteUri);
             }
         }
         public static string ReplaceInvalidTags(string input, List<BBTag> validTags)

@@ -12,7 +12,13 @@
         <ListBox x:Name="listBox" Background="#FFD43737" HorizontalAlignment="Left" Width="250" VerticalAlignment="Stretch" SelectionChanged="listBox_SelectionChanged">
             <ListBoxItem Background="#FFE81313" Content="dada"/>
         </ListBox>
-        <Grid x:Name="gridLibrary" Margin="250,0,0,0" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" MouseLeftButtonDown="GridLibrary_MouseLeftButtonDown">
+        <Grid x:Name="gridLibrary" Margin="250,0,0,0" MouseLeftButtonDown="GridLibrary_MouseLeftButtonDown">
+            <Grid.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black"/>
+                    <GradientStop Color="White" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
             <Image x:Name="image" Height="300" VerticalAlignment="Top" Stretch="Fill" />
             <Grid Margin="0,300,0,0" VerticalAlignment="Top" Height="116">
                 <StackPanel Height="116" VerticalAlignment="Top" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
@@ -20,17 +26,42 @@
                 <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="70,28,0,0" VerticalAlignment="Top"/>
             </Grid>
             <Grid Margin="0,300,0,0" VerticalAlignment="Top" Height="116">
-                <StackPanel Height="116" VerticalAlignment="Top" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
+                <StackPanel Height="116" VerticalAlignment="Top">
+                    <StackPanel.Effect>
+                        <BlurEffect/>
+                    </StackPanel.Effect>
+                    <StackPanel.Background>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="Black" Offset="1"/>
+                            <GradientStop Color="#FF92B1E0"/>
+                        </LinearGradientBrush>
+                    </StackPanel.Background>
+                </StackPanel>
                 <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="137,45,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="36" Width="74"/>
                 <Button x:Name="button1" Content="Button" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center" Height="36" Width="71"/>
                 <Grid/>
             </Grid>
-            <Grid Margin="0,416,0,0" Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}">
-                <Grid VerticalAlignment="Top">
-                    <StackPanel x:Name="notes" Height="116" VerticalAlignment="Center" MouseLeftButtonDown="notes_MouseLeftButtonDown" Background="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
-                    <Image x:Name="image1" Height="100" Width="100" Margin="15,8,998,8"  />
-                    <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Margin="162,45,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" RenderTransformOrigin="0.527,0.564"/>
-                </Grid>
+            <Grid Margin="0,416,0,0" Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}" >
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <ItemsControl Name ="NotesList">
+                        <ItemsControl.Background>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <GradientStop Color="#7E000000" Offset="0"/>
+                                <GradientStop Color="#FF21252B" Offset="1"/>
+                            </LinearGradientBrush>
+                        </ItemsControl.Background>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid VerticalAlignment="Top">
+                                    <StackPanel x:Name="notes" Height="116" VerticalAlignment="Center" MouseLeftButtonDown="notes_MouseLeftButtonDown" Background="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
+                                    <Image x:Name="image1" Height="100" Width="100" Margin="15,8,998,8"  />
+                                    <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Margin="162,45,0,0" TextWrapping="Wrap" Text="{Binding Title}" VerticalAlignment="Top" RenderTransformOrigin="0.527,0.564"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
             </Grid>
             <StackPanel/>
         </Grid>

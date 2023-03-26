@@ -9,7 +9,7 @@
       Title="Page2">
 
     <Grid>
-        <WebBrowser x:Name="webBrowser1"/>
+        <WebBrowser x:Name="webBrowser1" Navigating="webBrowser_Navigating"/>
 
     </Grid>
 </Page>
