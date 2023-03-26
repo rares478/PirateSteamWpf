@@ -1,6 +1,6 @@
 ﻿using CodeKicker.BBCode;
 using Newtonsoft.Json.Linq;
-
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -25,39 +25,26 @@ namespace WpfApp3
         private void GetNotes()
         {
             string input = "";
+            string patch_name = "";
+            string patch_title = "";
 
             foreach (JObject newsItem in Page1.newsItems)
             {
-                string title = (string)newsItem["title"];
-
-                JToken contentToken = newsItem["contents"];
-                string mid = contentToken.ToString(Newtonsoft.Json.Formatting.None);
-                mid = mid.Replace("\\n", "^br^");
+                
                 string feedname = (string)newsItem["feedname"];
 
                 if (feedname == "steam_community_announcements")
                 {
-                    string[] tagstoken = { "" };
-                    if (newsItem.ContainsKey("tags"))
-                    {
-                        tagstoken = ((JArray)newsItem["tags"]).Select(t => (string)t).ToArray();
-                        // Do something with the tagstoken array
-                    }
-                    if (tagstoken[0] == "patchnotes")
-                    {
-                        //tbNewsName.Text = "SMALL UPDATE / PATCH NOTES";
-                        //pbNewsInside.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        //tbNewsName.Text = "NEWS";
-                        //pbNewsInside.Image = Library.picyeah();
-                    }
-
-
+                    JToken contentToken = newsItem["contents"];
+                    string mid = contentToken.ToString(Newtonsoft.Json.Formatting.None);
+                    mid = mid.Replace("\\n", "^br^");
                     input = mid;
 
-                    // tbNameNews.Text = title;
+                    double epochTime = (double)newsItem["date"];
+                    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochTime);
+                    string formattedDate = dateTime.ToString("ddd, MMMM dd");
+
+                    patch_title = (string)newsItem["title"];
 
 
                     var attrs = new BBAttribute[]
@@ -69,7 +56,6 @@ namespace WpfApp3
                     new BBAttribute("videocode",""),
                     new BBAttribute("full","")
                     };
-
                     var bbTags = new List<BBTag>()
                 {
                 new BBTag("h1","<h1>","</h1>"),
@@ -95,14 +81,11 @@ namespace WpfApp3
                 new BBTag("img", "<img src=\"${content}\" width=\"800\"height=\"450\"/>", "", false, true),
 
                 };
-
                     var parser = new BBCodeParser(bbTags);
 
 
-
+                    
                     input = ReplaceInvalidTags(input, bbTags);
-
-
 
                     // Convert BBCode to HTML
                     var output = parser.ToHtml(input);
@@ -113,12 +96,27 @@ namespace WpfApp3
                     output = Regex.Replace(output, @"\^(.+?)\^", "<$1>");
                     output = output.Replace("&quot;", "");
 
+                    // Check if you should have a picture or not
+                    string[] tagstoken = { "" };
+                    if (newsItem.ContainsKey("tags"))
+                    {
+                        tagstoken = ((JArray)newsItem["tags"]).Select(t => (string)t).ToArray();
+                        // Do something with the tagstoken array
+                    }
+                    if (tagstoken[0] == "patchnotes")
+                    {
+                        patch_name = "SMALL UPDATE / PATCH NOTES";
+                        output = "<!DOCTYPE html><html><head><title>My Page</title><style>body {margin: 0;padding: 0;}.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + formattedDate + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
+                        output = output + "</div></body></html>";
+                        //pbNewsInside.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        patch_name = "NEWS";
+                        output = "<!DOCTYPE html><html><head><title>My Page</title><style>body {margin: 0;padding: 0;}.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"header\"></div><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + formattedDate + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
+                        output = output + "</div></body></html>";
+                    }
 
-
-                    output = "<!DOCTYPE html><html><head><title>My Page</title><style>body {margin: 0;padding: 0;}.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 74px;background-color: rgb(64, 68, 74);display: flex;align-items: center;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: blue;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"header\"></div><div class=\"panel\"><h2>Patch Notes</h2><p class=\"news\">NEWS</p><p class=\"posted\">POSTED</p><p class=\"date\">Sat, February 25</p></div><div class=\"notes\">" + output;
-                    output = output + "</div></body></html>";
-
-                    
 
                     webBrowser1.NavigateToString(output);
 
