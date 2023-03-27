@@ -9,8 +9,8 @@
       Title="Page1">
 
     <Grid Margin="0,0,0,0">
-        <ListBox x:Name="listBox" Background="#FF24282F" HorizontalAlignment="Left" Width="250" VerticalAlignment="Stretch" SelectionChanged="listBox_SelectionChanged">
-            <ListBoxItem Background="{x:Null}" Content="dada" Foreground="White"/>
+        <ListBox x:Name="lbLibrary" Background="#FF24282F" HorizontalAlignment="Left" Width="250" VerticalAlignment="Stretch" SelectionChanged="listBox_SelectionChanged" Foreground="White">
+            
         </ListBox>
         <Grid x:Name="gridLibrary" Margin="250,0,0,0" MouseLeftButtonDown="GridLibrary_MouseLeftButtonDown">
             <Grid.Background>
@@ -38,7 +38,7 @@
                     </StackPanel.Background>
                 </StackPanel>
                 <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="192,12,0,0" TextWrapping="Wrap" Text="Last Played" VerticalAlignment="Top" Height="36" Width="78" FontFamily="Tahoma" FontSize="15" Foreground="White"/>
-                <Button x:Name="button1" Content="Play" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="46" Width="165" Background="#FF3EC139" Foreground="White" FontFamily="Tahoma" FontSize="24"/>
+                <Button x:Name="bt_Play" Content="Play" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="46" Width="165" Background="#FF3EC139" Foreground="White" FontFamily="Tahoma" FontSize="24" Click="bt_Play_Click"/>
                 <Grid/>
                 <TextBlock x:Name="textBlock1_Copy" HorizontalAlignment="Left" Margin="306,12,0,0" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Top" Height="36" Width="78" FontFamily="Tahoma" FontSize="15" Foreground="White"/>
                 <TextBlock x:Name="tb_LastPlayed" HorizontalAlignment="Left" Margin="192,36,0,0" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Top" Height="36" Width="78" FontFamily="Tahoma" Foreground="#FFB6BCD0"/>

@@ -16,13 +16,13 @@ namespace WpfApp3
     /// </summary>
     public partial class Page2 : Page
     {
-        public Page2(Page1.PatchNote patchNote)
+        public Page2(PatchNote patchNote)
         {
             InitializeComponent();
             GetNotes(patchNote);
         }
 
-        private void GetNotes(Page1.PatchNote patchNote)
+        private void GetNotes(PatchNote patchNote)
         {
             string input = "";
             string patch_name = "";
@@ -67,7 +67,7 @@ namespace WpfApp3
                 new BBTag("code", "<pre class=\"prettyprint\">", "</pre>"),
 
                 new BBTag("color","<color=\"${color}\">","</color>",new BBAttribute("color","")),
-                new BBTag("img", "<img src=\"${content}\" width=\"800\"height=\"450\"/>", "", false, true),
+                new BBTag("img", "<img src=\"${content}\" class=\"resized-image\"/>", "", false, true),
 
                 };
             var parser = new BBCodeParser(bbTags);
@@ -84,18 +84,19 @@ namespace WpfApp3
             output = Regex.Replace(output, @"\|(.+?)\|", "[$1]");
             output = Regex.Replace(output, @"\^(.+?)\^", "<$1>");
             output = output.Replace("&quot;", "");
+            output = output.Replace("{STEAM_CLAN_IMAGE}", "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/clans/");
 
             // Check if you should have a picture or not
             if (patchNote.IsNews == false)
             {
                 patch_name = "SMALL UPDATE / PATCH NOTES";
-                output = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>My Page</title><style>body {margin: 0;padding: 0;}.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + patchNote.Date + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
+                output = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>My Page</title><style>body {margin: 0;padding: 0;}.resized-image{ max-width: 820px;max-height: 450px; width:auto; height:auto; }.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + patchNote.Date + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
                 output = output + "</div></body></html>";
             }
             else
             {
                 patch_name = "NEWS";
-                output = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>My Page</title><style>body {margin: 0;padding: 0;}.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"header\"></div><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + patchNote.Date + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
+                output = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>My Page</title><style>body {margin: 0;padding: 0;}.resized-image{ max-width: 820px;max-height: 450px; width:auto; height:auto; }.header {height: 149px;background-image: url(\"path/to/image.jpg\");background-size: cover;background-position: center;}.panel {height: 50px;background-color: rgb(64, 68, 74);align-items: left;padding: 0;}.panel h2 {color: #fff;font-size: 24px;margin: 0;margin-left: 16px;font-family: Tahoma, sans-serif;}.news {color: rgb(41, 152, 247);font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.posted {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;margin-left: 16px;}.date {color: grey;font-family: Tahoma, sans-serif;font-size: 10pt;margin: 0;margin-right: 16px;}.notes{margin: 16px;margin-right: 16px;}.news-panel {align-items: left;background-color: rgb(64, 68, 74);padding: 5px;}.news-panel span{margin-right: 10px;}</style></head><body style=\"background-color:rgb(27, 40, 56); font-family:Tahoma; font-size: 15.25px; color:rgb(183, 185, 186);\"><div class=\"header\"></div><div class=\"news-panel\"><p class=\"news\">" + patch_name + "<span class=\"posted\">POSTED</span><span class=\"date\">" + patchNote.Date + "</span></p></div><div class=\"panel\"><h2>" + patch_title + "</h2></div><div class=\"notes\">" + output;
                 output = output + "</div></body></html>";
             }
 

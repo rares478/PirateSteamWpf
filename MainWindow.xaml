@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp3"
         mc:Ignorable="d"
-        Title="MainWindow" Height="900" Width="1400">
+        Title="MainWindow" Height="900" Width="1400" MinWidth="1140" MinHeight="650">
     <Grid>
         <Grid VerticalAlignment="Top">
-            <StackPanel Height="79" VerticalAlignment="Center">
+            <StackPanel Height="79" VerticalAlignment="Top">
                 <StackPanel.Background>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                         <GradientStop Color="#FF202224" Offset="1"/>
@@ -16,8 +16,9 @@
                     </LinearGradientBrush>
                 </StackPanel.Background>
             </StackPanel>
-            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="30,41,0,0" TextWrapping="Wrap" VerticalAlignment="Top" MouseLeftButtonDown="textBlock_MouseLeftButtonDown" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37"><Run Text="Library"/><LineBreak/><Run/></TextBlock>
-            <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="139,42,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24"><Run Text="Settings"/><LineBreak/><Run/></TextBlock>
+            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="29,21,0,0" TextWrapping="Wrap" VerticalAlignment="Top" MouseLeftButtonDown="textBlock_MouseLeftButtonDown" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37"><Run Text="Library"/><LineBreak/><Run/></TextBlock>
+            <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="314,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37"><Run Text="Settings"/><LineBreak/><Run/></TextBlock>
+            <TextBlock x:Name="textBlock_Copy1" HorizontalAlignment="Left" Margin="143,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37" Text="Add a Game&#xD;&#xA;"/>
         </Grid>
         <Frame x:Name="frameMain" Margin="0,79,0,0" NavigationUIVisibility="Hidden"/>
     </Grid>
