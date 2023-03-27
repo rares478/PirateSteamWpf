@@ -99,8 +99,6 @@ namespace WpfApp3
                 output = output + "</div></body></html>";
             }
 
-            MessageBox.Show(output);
-
             webBrowser1.NavigateToString(output);
         }
 

@@ -31,6 +31,7 @@ namespace WpfApp3
         {
             InitializeComponent();
             appid = 526870;
+            listBox.SelectedIndex = 0;
 
             /*List<JArray> notes = new List<JArray>();
             notes.Add(new JArray(newsItems));

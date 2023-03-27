@@ -8,9 +8,16 @@
         Title="MainWindow" Height="900" Width="1400">
     <Grid>
         <Grid VerticalAlignment="Top">
-            <StackPanel Height="79" VerticalAlignment="Center" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
-            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="59,25,0,0" TextWrapping="Wrap" VerticalAlignment="Top" MouseLeftButtonDown="textBlock_MouseLeftButtonDown"><Run Text="Library"/><LineBreak/><Run/></TextBlock>
-            <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="136,27,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="2.333,0.378"><Run Text="Settings"/><LineBreak/><Run/></TextBlock>
+            <StackPanel Height="79" VerticalAlignment="Center">
+                <StackPanel.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FF202224" Offset="1"/>
+                        <GradientStop Color="#FF202431" Offset="0"/>
+                    </LinearGradientBrush>
+                </StackPanel.Background>
+            </StackPanel>
+            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="30,41,0,0" TextWrapping="Wrap" VerticalAlignment="Top" MouseLeftButtonDown="textBlock_MouseLeftButtonDown" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37"><Run Text="Library"/><LineBreak/><Run/></TextBlock>
+            <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="139,42,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24"><Run Text="Settings"/><LineBreak/><Run/></TextBlock>
         </Grid>
         <Frame x:Name="frameMain" Margin="0,79,0,0" NavigationUIVisibility="Hidden"/>
     </Grid>
