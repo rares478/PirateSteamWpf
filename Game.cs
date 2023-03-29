@@ -17,6 +17,7 @@ namespace WpfApp3
         public double Last_Played { get; set; }
         public int SteamAppid { get; set; }
         public float Playtime { get; set; }
+        public string Launch_Options { get; set; }
 
     }
 }

@@ -1,0 +1,27 @@
+﻿<Page x:Class="WpfApp3.Settings"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:WpfApp3"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="840"
+      Title="Settings">
+
+    <Grid>
+        <Grid.Background>
+            <RadialGradientBrush Center="0,0" RadiusX="1" RadiusY="1">
+                <GradientStop Color="#FF30363E" Offset="0"/>
+                <GradientStop Color="#FF0E141B" Offset="1"/>
+            </RadialGradientBrush>
+        </Grid.Background>
+        <TextBlock x:Name="tb_Name" Margin="22,10,707,558" TextWrapping="Wrap" Text="Crack" Foreground="#FF1A9FFF" FontFamily="Tahoma" FontSize="24"/>
+        <TextBlock x:Name="tb_Name_Copy" Margin="22,42,181,526" TextWrapping="Wrap" Text="Select the auto applied crack" Foreground="#FF969696" FontFamily="Tahoma" FontSize="18"/>
+        <RadioButton GroupName="Crack" x:Name="rb_Goldberg" Content="Goldberg" Margin="379,103,378,479" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_Goldberg_Checked"/>
+        <RadioButton GroupName="Crack" x:Name="rb_CreamAPI" Content="CreamAPI" Margin="33,103,718,479" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_CreamAPI_Checked"/>
+        <RadioButton GroupName="Crack" x:Name="rb_Goldberg_Experimental" Content="Goldberg Experimental" Margin="627,103,33,479" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_Goldberg_Experimental_Checked"/>
+        <TextBlock x:Name="tb_Name_Copy1" Margin="22,190,633,378" TextWrapping="Wrap" Text="Start at Startup" Foreground="#FF1A9FFF" FontFamily="Tahoma" FontSize="24"/>
+        <RadioButton GroupName="Startup" x:Name="rb_StartAtStartup" Content="Yes" Margin="33,254,718,328" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_StartAtStartup_Checked"/>
+        <RadioButton GroupName="Startup" x:Name="rb_NoStartAtStartup" Content="No" Margin="217,254,534,328" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_NoStartAtStartup_Checked"/>
+    </Grid>
+</Page>

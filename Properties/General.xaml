@@ -1,0 +1,31 @@
+﻿<Page x:Class="WpfApp3.General"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:WpfApp3"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="640"
+      Title="General">
+
+    <Grid>
+        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="49,37,0,0" TextWrapping="Wrap" Text="GENERAL" VerticalAlignment="Top" Foreground="White" FontFamily="Tahoma" FontSize="28" Width="123"/>
+        <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="32,111,0,0" TextWrapping="Wrap" Text="LAUNCH OPTIONS" VerticalAlignment="Top" Foreground="#FF848586" FontFamily="Tahoma" FontSize="16"/>
+        <TextBox x:Name="tb_LaunchOption" Text="Example Text" 
+         VerticalContentAlignment="Center" 
+         HorizontalContentAlignment="Left" 
+         Height="50" 
+         BorderThickness="1" 
+         Margin="32,149,32,401" Background="#FF2E343D" BorderBrush="{x:Null}" Foreground="#FF767879" FontFamily="Tahoma" FontSize="18" Width="583"/>
+        <Button x:Name="bt_Save" Content="Save" HorizontalAlignment="Left" Margin="213,501,0,0" VerticalAlignment="Center" Width="200" Height="35" Foreground="White" BorderBrush="{x:Null}" FontFamily="Tahoma" FontSize="16" Click="bt_Save_Click">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF3182E1"/>
+                    <GradientStop Color="#FF47BFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+        <Button x:Name="bt_Close" Content="X" HorizontalAlignment="Left" Margin="626,0,0,0" VerticalAlignment="Top" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="White" Click="bt_Close_Click"/>
+
+    </Grid>
+</Page>

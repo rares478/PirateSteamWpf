@@ -8,9 +8,94 @@
       d:DesignHeight="1363.487" d:DesignWidth="899.666"
       Title="Page1">
 
+
     <Grid Margin="0,0,0,0">
-        <ListBox x:Name="lbLibrary" Background="#FF24282F" HorizontalAlignment="Left" Width="250" VerticalAlignment="Stretch" SelectionChanged="listBox_SelectionChanged" Foreground="White">
-            
+        <ListBox x:Name="lbLibrary" Background="#FF24282F" HorizontalAlignment="Left" Width="250" VerticalAlignment="Stretch" SelectionChanged="listBox_SelectionChanged" Foreground="White" FontSize="13" FontFamily="Tahoma" BorderThickness="1,0,0,0">
+            <ListBox.Resources>
+                <SolidColorBrush x:Key="ContextMenuBackgroundBrush" Color="#3C4047"/>
+            </ListBox.Resources>
+            <ListBox.ContextMenu>
+                <ContextMenu Background="{StaticResource ContextMenuBackgroundBrush}" FontFamily="Tahoma" FontSize="15">
+                    <ContextMenu.Resources>
+                        <SolidColorBrush x:Key="MenuItemMouseOverBackgroundBrush" Color="#5A6069"/>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Background" Value="{StaticResource ContextMenuBackgroundBrush}"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="MenuItem">
+                                        <Border Name="Border" Background="{TemplateBinding Background}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="155"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ContentPresenter Margin="1,0,0,0"
+                                                                  VerticalAlignment="Center"
+                                                                  HorizontalAlignment="Left"
+                                                                  RecognizesAccessKey="True"/>
+
+                                                <TextBlock Grid.Column="1"
+                                                           Margin="4,0,0,0"
+                                                           Text="{TemplateBinding Header}"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{TemplateBinding Foreground}"/>
+
+                                                <Popup Name="SubMenuPopup"
+                                                       Placement="Right"
+                                                       IsOpen="{Binding Path=IsSubmenuOpen,RelativeSource={RelativeSource TemplatedParent}}"
+                                                       AllowsTransparency="True"
+                                                       Focusable="False">
+
+                                                    <Border Name="SubMenuBorder"
+                                                               Background="{StaticResource ContextMenuBackgroundBrush}"
+                                                               BorderBrush="Black"
+                                                               BorderThickness="1">
+                                                        <ItemsPresenter/>
+                                                    </Border>
+                                                </Popup>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsHighlighted" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource MenuItemMouseOverBackgroundBrush}" TargetName="Border"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSubmenuOpen" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource MenuItemMouseOverBackgroundBrush}" TargetName="Border"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                        <Style TargetType="ContextMenu">
+                            <Setter Property="Background" Value="{StaticResource ContextMenuBackgroundBrush}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ContextMenu">
+                                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="Black"
+                                BorderThickness="1">
+                                            <StackPanel IsItemsHost="True"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ContextMenu.Resources>
+                    <MenuItem Header="PLAY" Background="#406241" Foreground="White" BorderBrush="#FF3C4047" Click="bt_Play_Click"/>
+                    <MenuItem Header="Manage" Background="#3c4047" Foreground="#96a4a7" BorderBrush="#FF3C4047">
+                        <MenuItem Header="Add Desktop Shortcut" Background="#3c4047" Foreground="#96a4a7" BorderBrush="#FF3C4047" Click="bt_ShortcutMaker"/>
+                        <MenuItem Header="Browse files" Background="#3c4047" Foreground="#96a4a7" BorderBrush="#FF3C4047" Click="bt_BrowseFiles"/>
+                        <MenuItem Header="Uninstall" Background="#3c4047" Foreground="#96a4a7" BorderBrush="#FF3C4047" Click="bt_Unistall"/>
+                    </MenuItem>
+                    <MenuItem Header="Properties..." Background="#3c4047" Foreground="#96a4a7" BorderBrush="#FF3C4047" Click="bt_Properties"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
         </ListBox>
         <Grid x:Name="gridLibrary" Margin="250,0,0,0" MouseLeftButtonDown="GridLibrary_MouseLeftButtonDown">
             <Grid.Background>
@@ -38,7 +123,7 @@
                     </StackPanel.Background>
                 </StackPanel>
                 <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="192,12,0,0" TextWrapping="Wrap" Text="Last Played" VerticalAlignment="Top" Height="36" Width="78" FontFamily="Tahoma" FontSize="15" Foreground="White"/>
-                <Button x:Name="bt_Play" Content="Play" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="46" Width="165" Background="#FF3EC139" Foreground="White" FontFamily="Tahoma" FontSize="24" Click="bt_Play_Click"/>
+                <Button x:Name="bt_Play" Content="Play" HorizontalAlignment="Left" Margin="10,12,0,12" Width="165" Background="#FF3EC139" Foreground="White" FontFamily="Tahoma" FontSize="24" Click="bt_Play_Click"/>
                 <Grid/>
                 <TextBlock x:Name="textBlock1_Copy" HorizontalAlignment="Left" Margin="306,12,0,0" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Top" Height="36" Width="78" FontFamily="Tahoma" FontSize="15" Foreground="White"/>
                 <TextBlock x:Name="tb_LastPlayed" HorizontalAlignment="Left" Margin="192,36,0,0" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Top" Height="36" Width="78" FontFamily="Tahoma" Foreground="#FFB6BCD0"/>
@@ -67,7 +152,6 @@
                                             <BlurEffect/>
                                         </StackPanel.Effect>
                                     </StackPanel>
-                                    <Image x:Name="image1" Height="100" Width="100" Margin="15,8,998,8"  />
                                     <TextBlock x:Name="textBlock3" HorizontalAlignment="Left" Margin="162,20,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" RenderTransformOrigin="0.527,0.564" Foreground="White" FontFamily="Tahoma" FontSize="13">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
@@ -86,7 +170,6 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-
             </Grid>
             <StackPanel/>
         </Grid>

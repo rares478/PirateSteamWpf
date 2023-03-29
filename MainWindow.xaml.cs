@@ -29,5 +29,15 @@ namespace WpfApp3
         {
             frameMain.Content = new Page1();
         }
+
+        private void tb_AddGame_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            frameMain.Content = new AddGame();
+        }
+
+        private void tb_Settings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            frameMain.Content = new Settings();
+        }
     }
 }

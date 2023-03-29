@@ -16,9 +16,9 @@
                     </LinearGradientBrush>
                 </StackPanel.Background>
             </StackPanel>
-            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="29,21,0,0" TextWrapping="Wrap" VerticalAlignment="Top" MouseLeftButtonDown="textBlock_MouseLeftButtonDown" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37"><Run Text="Library"/><LineBreak/><Run/></TextBlock>
-            <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="314,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37"><Run Text="Settings"/><LineBreak/><Run/></TextBlock>
-            <TextBlock x:Name="textBlock_Copy1" HorizontalAlignment="Left" Margin="143,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37" Text="Add a Game&#xD;&#xA;"/>
+            <TextBlock x:Name="tb_Library" HorizontalAlignment="Left" Margin="29,21,0,0" TextWrapping="Wrap" VerticalAlignment="Top" MouseLeftButtonDown="textBlock_MouseLeftButtonDown" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37"><Run Text="Library"/><LineBreak/><Run/></TextBlock>
+            <TextBlock x:Name="tb_Settings" HorizontalAlignment="Left" Margin="314,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37" MouseLeftButtonDown="tb_Settings_MouseLeftButtonDown"><Run Text="Settings"/><LineBreak/><Run/></TextBlock>
+            <TextBlock x:Name="tb_AddGame" HorizontalAlignment="Left" Margin="143,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37" Text="Add a Game&#xD;&#xA;" MouseLeftButtonDown="tb_AddGame_MouseLeftButtonDown"/>
         </Grid>
         <Frame x:Name="frameMain" Margin="0,79,0,0" NavigationUIVisibility="Hidden"/>
     </Grid>

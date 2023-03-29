@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ using System.Windows.Shapes;
 using System.Xml;
 using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using IWshRuntimeLibrary;
 
 namespace WpfApp3
 {
@@ -42,7 +44,7 @@ namespace WpfApp3
 
             Directory.CreateDirectory(path);
 
-            if (File.Exists(xml))
+            if (System.IO.File.Exists(xml))
             {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(xml);
@@ -62,9 +64,15 @@ namespace WpfApp3
                     game.Type = gameNode.SelectSingleNode("type").InnerText;
                     game.Background = gameNode.SelectSingleNode("background").InnerText;
                     game.Date_Added = double.Parse(gameNode.SelectSingleNode("date").InnerText);
-                    game.Last_Played = double.Parse(gameNode.SelectSingleNode("last_played").InnerText);
+                    if(gameNode.SelectSingleNode("last_played").InnerText == "")
+                    {
+                        game.Last_Played = 0;
+                    }
+                    else 
+                        game.Last_Played = double.Parse(gameNode.SelectSingleNode("last_played").InnerText);
                     game.SteamAppid = int.Parse(gameNode.SelectSingleNode("steamappid").InnerText);
                     game.Playtime = float.Parse(gameNode.SelectSingleNode("playtime").InnerText);
+                    game.Launch_Options = gameNode.SelectSingleNode("launch").InnerText;
                     games.Add(game);
                     lbLibrary.Items.Add(pathValue);
                 }
@@ -188,19 +196,8 @@ namespace WpfApp3
                     }
                     else
                     {
-                        notes.Add(new PatchNote() { Title = title, Content = mid, Date = formattedDate, IsNews = true });
+                        notes.Add(new PatchNote() { Title = title, Content = mid, Date = formattedDate, IsNews = true});
                     }
-
-
-
-                    /*Regex regex = new Regex(@"(?<=\[img\])https?://[^\[\]]+(?=\[/img\])");
-                    MatchCollection matches = regex.Matches(contents);
-                    int i = 0;
-                    foreach (Match match in matches)
-                    {
-                        images[i] = match.Value;
-                        i++;
-                    }*/
                 }
             }
             NotesList.ItemsSource = notes;
@@ -211,6 +208,60 @@ namespace WpfApp3
             Game game = games[lbLibrary.SelectedIndex];
             Directory.SetCurrentDirectory(game.Path_Directory);
             Process.Start(game.Path);
+        }
+
+        private void bt_ShortcutMaker(object sender, RoutedEventArgs e) 
+        {
+            Game game = games[lbLibrary.SelectedIndex];
+            string shortcutPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\" + game.Title + ".lnk";
+            WshShell shell = new WshShell();
+            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
+            shortcut.TargetPath = game.Path;
+            shortcut.WorkingDirectory = game.Path_Directory;
+            shortcut.Save();
+        }
+
+        private void bt_BrowseFiles(object sender, RoutedEventArgs e)
+        {
+            Game game = games[lbLibrary.SelectedIndex];
+            Process.Start("explorer.exe", game.Path_Directory);
+        }
+
+        private void bt_Unistall(object sender, RoutedEventArgs e)
+        {
+            Game game = games[lbLibrary.SelectedIndex];
+            if (Directory.Exists(game.Path_Directory))
+            {
+
+                MessageBoxResult result = MessageBox.Show("Are you sure?", "haoleo", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes)
+                {
+                    Directory.Delete(game.Path_Directory, true);
+                    MessageBox.Show("Deleted");
+                }
+            }
+        }
+        private void bt_Properties(object sender, RoutedEventArgs e)
+        {
+            Game game = games[lbLibrary.SelectedIndex];
+            Properties newProperties = new Properties(game.SteamAppid);
+            newProperties.Show();
+            
+        }
+
+        private void ListBox_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            ListBoxItem listBoxItem = e.Source as ListBoxItem;
+            if (listBoxItem != null)
+            {
+                ContextMenu contextMenu = listBoxItem.ContextMenu;
+                if (contextMenu != null)
+                {
+                    contextMenu.PlacementTarget = listBoxItem;
+                    contextMenu.IsOpen = true;
+                }
+            }
+            e.Handled = true;
         }
     }
 }
