@@ -23,6 +23,7 @@ namespace WpfApp3
         public MainWindow()
         {
             InitializeComponent();
+            frameMain.Content = new Page1();
         }
 
         private void textBlock_MouseLeftButtonDown(object sender, MouseEventArgs e)
@@ -38,6 +39,10 @@ namespace WpfApp3
         private void tb_Settings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             frameMain.Content = new Settings();
+        }
+        private void tb_Sites_MouseLeftButtonDown(Object sender, MouseButtonEventArgs e)
+        {
+            frameMain.Content = new Sites();
         }
     }
 }

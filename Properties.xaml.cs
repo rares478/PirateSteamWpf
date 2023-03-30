@@ -17,22 +17,25 @@ namespace WpfApp3
     /// <summary>
     /// Interaction logic for Properties.xaml
     /// </summary>
-    public partial class Properties : Window
+    public partial class PropertiesYeah : Window
     {
-        public Properties(int id)
+        public PropertiesYeah(Game game1)
         {
             InitializeComponent();
-            id1 = id;
+            game = game1;
+            tb_Name.Text = game.Title;
         }
-        int id1;
+        private Game game;
         private void lb_Properties_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             switch (lb_Properties.SelectedIndex)
             {
                 case 0: 
-                    frame.Content = new General(id1);
+                    frame.Content = new Properties.General(game);
                     break;
-                //case 1:
+                case 1:
+                    frame.Content = new Properties.Files(game);
+                    break;
             }
         }
     }

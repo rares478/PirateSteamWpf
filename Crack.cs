@@ -16,9 +16,9 @@ namespace WpfApp3
 {
     class Crack
     {
-        static string[] dllpaths64;
-        static string[] dllpaths32;
-        public static string filepath;
+        static string[] dllpaths64= { };
+        static string[] dllpaths32= { };
+        public static string filepath = "";
         static bool is64 = true;
         public static List<string> screenshots = new List<string>();
 
@@ -54,7 +54,6 @@ namespace WpfApp3
 
                 int[] DLCs = dlcid.Distinct().ToArray();
                 string[] names = new string[DLCs.Length];
-                i = 0;
                 for (int j = 0; j < DLCs.Length - 1; j++)
                 {
                     WebRequest request2 = WebRequest.Create("https://store.steampowered.com/api/appdetails?appids=" + DLCs[j].ToString());
@@ -70,7 +69,6 @@ namespace WpfApp3
                         names[j] = (string)data[DLCs[j].ToString()]["data"]["name"];
 
                         JArray ss = data[DLCs[j].ToString()]["data"]["screenshots"] as JArray;
-                        List<string> fullPaths = new List<string>();
 
                         foreach (JObject screenshot in ss)
                         {
@@ -94,14 +92,11 @@ namespace WpfApp3
             saveFile.Title = "Select the exe";
             saveFile.ShowDialog();
             string pathtofile = "";
-            string directory = "";
-
             if (saveFile.FileName != "")
             {
 
                 pathtofile = saveFile.FileName;
-                directory = Path.GetDirectoryName(saveFile.FileName);
-
+                string directory = Path.GetDirectoryName(saveFile.FileName);
                 dllpaths64 = Directory.GetFiles(directory, "steam_api64.dll", SearchOption.AllDirectories);
                 dllpaths32 = Directory.GetFiles(directory, "steam_api.dll", SearchOption.AllDirectories);
 
@@ -110,7 +105,6 @@ namespace WpfApp3
 
                 foreach (string dllpath in dllpaths64)
                 {
-                    FileInfo inf = new FileInfo(dllpath);
                     Microsoft.VisualBasic.FileIO.FileSystem.RenameFile(dllpath, "steam_api64_o.dll");
                 }
                 for (int i = 0; i < dllpaths64.Length; i++)
@@ -120,7 +114,6 @@ namespace WpfApp3
 
                 foreach (string dllpath in dllpaths32)
                 {
-                    FileInfo inf = new FileInfo(dllpath);
                     Microsoft.VisualBasic.FileIO.FileSystem.RenameFile(dllpath, "steam_api_o.dll");
                 }
                 for (int i = 0; i < dllpaths32.Length; i++)

@@ -147,12 +147,12 @@ namespace WpfApp3
                 gameElement.AppendChild(crackElement);
 
                 XmlElement backgroundElement = xmlDoc.CreateElement("background");
-                Random random = new Random();
-                int limit = Crack.screenshots.Count;
-                int rand = random.Next(0,limit);
-                string img = Crack.screenshots[rand];
-                backgroundElement.InnerText = img;
+                backgroundElement.InnerText = "https://cdn.cloudflare.steamstatic.com/steam/apps/"+ appid.ToString() +"/library_hero.jpg?t=1624181121";
                 gameElement.AppendChild(backgroundElement);
+
+                XmlElement logoElement = xmlDoc.CreateElement("logo");
+                logoElement.InnerText = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + appid.ToString() + "/logo.png?t=1624181121";
+                gameElement.AppendChild(logoElement);
 
                 XmlElement dateElement = xmlDoc.CreateElement("date");
                 long date= DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -171,10 +171,6 @@ namespace WpfApp3
                 playtimeElement.InnerText = "0.0";
                 gameElement.AppendChild(playtimeElement);
 
-                XmlElement launchElement = xmlDoc.CreateElement("launch");
-                launchElement.InnerText = "";
-                gameElement.AppendChild(launchElement);
-
                 XmlNode gamesNode = xmlDoc.SelectSingleNode("/games");
                 gamesNode.AppendChild(gameElement);
 
@@ -182,5 +178,59 @@ namespace WpfApp3
             }
             
         }
+        /*public static string FindGameDirectory(string gameName, string configName, bool attemptCombos = true)
+        {
+            // Banned characters (can't be used in folder names in Windows)
+            char[] banned_characters = new char[] { '\\', '/', ':', '*', '?', '\"', '<', '>', '|' };
+            foreach (char c in banned_characters)
+            {
+                gameName = gameName.Replace(c.ToString(), "");
+            }
+
+            gameName = gameName.ToLower();
+            List<string> gameNameList = new List<string> { gameName };
+
+            // Create a list with all the combinations of name possible
+            char[] characters = new char[] { ' ', '-', '\'', '&' };
+            for (int i = 0; i < characters.Length; i++)
+            {
+                for (int j = 0; j < characters.Length - i; j++)
+                {
+                    string[] combo = new string[i + 1];
+                    for (int k = 0; k <= i; k++)
+                    {
+                        combo[k] = characters[j + k].ToString();
+                    }
+
+                    // This will remove all possible combinations of characters that are often not included in folder names
+                    string buffer = gameName;
+                    foreach (string c in combo)
+                    {
+                        buffer = buffer.Replace(c, "");
+                    }
+
+                    if (!gameNameList.Contains(buffer))
+                    {
+                        gameNameList.Add(buffer);
+                    }
+
+                    // Try changing double spaces "  " to single spaces " "
+                    string buffer2 = buffer.Replace("  ", " ");
+                    if (buffer2 != buffer && !gameNameList.Contains(buffer2))
+                    {
+                        gameNameList.Add(buffer2);
+                    }
+                }
+            }
+
+            foreach (string folder in Directory.GetDirectories(config["Locations"][configName]))
+            {
+                if (gameNameList.Contains(folder.ToLower()))
+                {
+                    return folder;
+                }
+            }
+            return "error";
+        }*/
     }
 }

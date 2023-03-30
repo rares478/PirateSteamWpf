@@ -1,39 +1,25 @@
-﻿using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
-using System.Xml.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using IWshRuntimeLibrary;
+using System.ComponentModel;
 
 namespace WpfApp3
 {
-    /// <summary>
-    /// Interaction logic for Page1.xaml
-    /// </summary>
     public partial class Page1 : Page
     {
         
-        private static string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PirateSteam");
+        private static string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PirateSteam");
         private static string xml = path + "\\Games.xml";
         public static List<PatchNote> notes = new List<PatchNote>();
         public static List<Game> games = new List<Game>();
@@ -63,6 +49,7 @@ namespace WpfApp3
                     game.Path_Directory = gameNode.SelectSingleNode("path_directory").InnerText;
                     game.Type = gameNode.SelectSingleNode("type").InnerText;
                     game.Background = gameNode.SelectSingleNode("background").InnerText;
+                    game.Logo = gameNode.SelectSingleNode("logo").InnerText;
                     game.Date_Added = double.Parse(gameNode.SelectSingleNode("date").InnerText);
                     if(gameNode.SelectSingleNode("last_played").InnerText == "")
                     {
@@ -72,16 +59,13 @@ namespace WpfApp3
                         game.Last_Played = double.Parse(gameNode.SelectSingleNode("last_played").InnerText);
                     game.SteamAppid = int.Parse(gameNode.SelectSingleNode("steamappid").InnerText);
                     game.Playtime = float.Parse(gameNode.SelectSingleNode("playtime").InnerText);
-                    game.Launch_Options = gameNode.SelectSingleNode("launch").InnerText;
                     games.Add(game);
                     lbLibrary.Items.Add(pathValue);
                 }
             }
+            lbLibrary.Items.SortDescriptions.Add(new SortDescription("",ListSortDirection.Ascending));
+            games = games.OrderBy(g => g.Title).ToList();
             lbLibrary.SelectedIndex = 0;
-
-            /*List<JArray> notes = new List<JArray>();
-            notes.Add(new JArray(newsItems));
-            NotesList.ItemsSource = notes;*/
         }
 
         
@@ -150,6 +134,12 @@ namespace WpfApp3
             bitmapImage.EndInit();
             img_Background.Source = bitmapImage;
 
+            BitmapImage bitmapImage2 = new BitmapImage();
+            bitmapImage2.BeginInit();
+            bitmapImage2.UriSource = new Uri(game.Logo, UriKind.Absolute);
+            bitmapImage2.EndInit();
+            img_Logo.Source = bitmapImage2;
+
             double epochTime1 = game.Last_Played;
             DateTime dateTime1 = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochTime1);
             tb_LastPlayed.Text = dateTime1.ToString("MMM dd");
@@ -165,7 +155,6 @@ namespace WpfApp3
 
             JObject data = JObject.Parse(json);
             JArray newsItems = (JArray)data["appnews"]["newsitems"];
-            int j = 0;
             
             List<PatchNote> notes = new List<PatchNote>();
             foreach (JObject newsItem in newsItems)
@@ -201,6 +190,7 @@ namespace WpfApp3
                 }
             }
             NotesList.ItemsSource = notes;
+            
         }
 
         private void bt_Play_Click(object sender, RoutedEventArgs e)
@@ -244,15 +234,14 @@ namespace WpfApp3
         private void bt_Properties(object sender, RoutedEventArgs e)
         {
             Game game = games[lbLibrary.SelectedIndex];
-            Properties newProperties = new Properties(game.SteamAppid);
+            PropertiesYeah newProperties = new PropertiesYeah(game);
             newProperties.Show();
             
         }
 
         private void ListBox_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
-            ListBoxItem listBoxItem = e.Source as ListBoxItem;
-            if (listBoxItem != null)
+            if (e.Source is ListBoxItem listBoxItem)
             {
                 ContextMenu contextMenu = listBoxItem.ContextMenu;
                 if (contextMenu != null)
