@@ -11,17 +11,19 @@ using System.Xml;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Security.Policy;
 
 namespace WpfApp3
 {
     class Crack
     {
-        static string[] dllpaths64= { };
-        static string[] dllpaths32= { };
+        static string[] dllpaths64 = { };
+        static string[] dllpaths32 = { };
         public static string filepath = "";
         static bool is64 = true;
-        public static List<string> screenshots = new List<string>();
 
+        //This need rework
         static public void getDLC(int appid, string path)
         {
             WebRequest request = WebRequest.Create("https://store.steampowered.com/dlc/" + appid + "/random/ajaxgetfilteredrecommendations/?query&count=10000");
@@ -68,13 +70,15 @@ namespace WpfApp3
                         JObject data = JObject.Parse(response3);
                         names[j] = (string)data[DLCs[j].ToString()]["data"]["name"];
 
-                        JArray ss = data[DLCs[j].ToString()]["data"]["screenshots"] as JArray;
+
+                        //These are the screenshots, maybe I'll use them  someday
+                        /*JArray ss = data[DLCs[j].ToString()]["data"]["screenshots"] as JArray;
 
                         foreach (JObject screenshot in ss)
                         {
                             string fullPath = screenshot["path_full"].ToString();
                             screenshots.Add(fullPath);
-                        }
+                        }*/
 
                         using (StreamWriter writer2 = File.AppendText(path))
                         {
@@ -85,18 +89,14 @@ namespace WpfApp3
             }
         }
 
-        static public string find_exe()
-        {
-            OpenFileDialog saveFile = new OpenFileDialog();
-            saveFile.Filter = "File exe|*.exe";
-            saveFile.Title = "Select the exe";
-            saveFile.ShowDialog();
-            string pathtofile = "";
-            if (saveFile.FileName != "")
-            {
 
-                pathtofile = saveFile.FileName;
-                string directory = Path.GetDirectoryName(saveFile.FileName);
+        private static void ReplaceDLLs(string directory,bool swap)
+        {
+            Array.Clear(dllpaths64);
+            Array.Clear(dllpaths32);
+
+            if (swap == false)
+            {
                 dllpaths64 = Directory.GetFiles(directory, "steam_api64.dll", SearchOption.AllDirectories);
                 dllpaths32 = Directory.GetFiles(directory, "steam_api.dll", SearchOption.AllDirectories);
 
@@ -120,41 +120,94 @@ namespace WpfApp3
                 {
                     dllpaths32[i] = Path.GetDirectoryName(dllpaths32[i]);
                 }
+
             }
-            return pathtofile;
+            else
+            {
+                string[] dll64 = Directory.GetFiles(directory, "steam_api64_o.dll", SearchOption.AllDirectories);
+                string[] dll32 = Directory.GetFiles(directory, "steam_api_o.dll", SearchOption.AllDirectories);
+
+                foreach (string dllpath in dll64)
+                {
+                    File.Delete(Directory.GetParent(dllpath).ToString() + "\\steam_api64.dll");
+                    Microsoft.VisualBasic.FileIO.FileSystem.RenameFile(dllpath, "steam_api64.dll");
+                }
+                foreach (string dllpath in dll32)
+                {
+                    File.Delete(Directory.GetParent(dllpath).ToString() + "\\steam_api.dll");
+                    Microsoft.VisualBasic.FileIO.FileSystem.RenameFile(dllpath, "steam_api.dll");
+                }
+            }
+
+            
         }
 
-
         #region CreamAPI
-        static public void CreamAPI(int appid)
+        static public void CreamAPI(int appid, string path_dir, string path_exe)
         {
+            ReplaceDLLs(path_dir,false);
+
             foreach (string dllpath in dllpaths64)
             {
                 File.Copy(@"Good_Stuff\CreamAPI\steam_api64.dll", Path.Combine(dllpath, "steam_api64.dll"));
-                using (StreamWriter sw = File.CreateText(Path.Combine(dllpath, "creamapi.ini")))
+                using (StreamWriter sw = File.CreateText(Path.Combine(dllpath, "cream_api.ini")))
                 {
-                    sw.Write("\r\n; This is a simplier version of Deadmau5's Cream_api with the comments removed, so it becomes easier\r\n; to navigate to the main values. All credits go to Deadmau5 for making this wrapper.  \r\n\r\n[steam]\r\nappid =" + appid + "\r\nwrappermode = true          \r\n\r\n[steam_wrapper]\r\nnewappid =480\r\nwrapperremotestorage = true\r\nwrapperuserstats = true\r\n\r\n[dlc]\r\n");
+                    sw.Write("; This is a simplier version of Deadmau5's Cream_api with the comments removed, so it becomes easier\r\n; to navigate to the main values. All credits go to Deadmau5 for making this wrapper.  \r\n\r\n[steam]\r\nappid =" + appid + "\r\nwrappermode = true          \r\n\r\n[steam_wrapper]\r\nnewappid =480\r\nwrapperremotestorage = true\r\nwrapperuserstats = true\r\n\r\n[dlc]\r\n");
+                    sw.Close();
                 }
-                getDLC(appid, Path.Combine(dllpath, "creamapi.ini"));
+                getDLC(appid, Path.Combine(dllpath, "cream_api.ini"));
             }
             foreach (string dllpath in dllpaths32)
             {
                 File.Copy(@"Good_Stuff\CreamAPI\steam_api.dll", Path.Combine(dllpath, "steam_api.dll"));
                 if (is64 == false)
                 {
-                    using (StreamWriter sw = File.CreateText(Path.Combine(dllpath, "creamapi.ini")))
+                    using (StreamWriter sw = File.CreateText(Path.Combine(dllpath, "cream_api.ini")))
                     {
-                        sw.Write("\r\n; This is a simplier version of Deadmau5's Cream_api with the comments removed, so it becomes easier\r\n; to navigate to the main values. All credits go to Deadmau5 for making this wrapper.  \r\n\r\n[steam]\r\nappid =" + appid + "\r\nwrappermode = true          \r\n\r\n[steam_wrapper]\r\nnewappid =480\r\nwrapperremotestorage = true\r\nwrapperuserstats = true\r\n\r\n[dlc]\r\n");
+                        sw.Write("; This is a simplier version of Deadmau5's Cream_api with the comments removed, so it becomes easier\r\n; to navigate to the main values. All credits go to Deadmau5 for making this wrapper.  \r\n\r\n[steam]\r\nappid =" + appid + "\r\nwrappermode = true          \r\n\r\n[steam_wrapper]\r\nnewappid =480\r\nwrapperremotestorage = true\r\nwrapperuserstats = true\r\n\r\n[dlc]\r\n");
+                        sw.Close();
                     }
-                    getDLC(appid, Path.Combine(dllpath, "creamapi.ini"));
+                    getDLC(appid, Path.Combine(dllpath, "cream_api.ini"));
                 }
             }
+
+            if(File.Exists(Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api64.dll")) == false)
+                File.Copy(@"Good_Stuff\CreamAPI\steam_api64.dll", Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api64.dll"));
+
+            if (dllpaths32.Length > 0)
+                if (File.Exists(Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api.dll")) == false)
+                    File.Copy(@"Good_Stuff\CreamAPI\steam_api.dll", Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api.dll"));
+
+            using (StreamWriter sw = new StreamWriter(Path.Combine(Directory.GetParent(path_exe).ToString(), "cream_api.ini"), false, Encoding.ASCII))
+            {
+                sw.Write("; This is a simplier version of Deadmau5's Cream_api with the comments removed, so it becomes easier\r\n; to navigate to the main values. All credits go to Deadmau5 for making this wrapper.  \r\n\r\n[steam]\r\nappid =" + appid + "\r\nwrappermode = true          \r\n\r\n[steam_wrapper]\r\nnewappid =480\r\nwrapperremotestorage = true\r\nwrapperuserstats = true\r\n\r\n[dlc]\r\n");
+                sw.Close();
+            }
+            getDLC(appid, Path.Combine(Directory.GetParent(path_exe).ToString(), "cream_api.ini"));
+
+
+            if (File.Exists(Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api64_o.dll")) == false)
+                File.Copy(dllpaths64[0] + "\\steam_api64_o.dll", Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api64_o.dll"));
+
+            if(dllpaths32.Length > 0)
+                if (File.Exists(Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api_o.dll")) == false)
+                    File.Copy(dllpaths32[0] + "\\steam_api_o.dll", Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api_o.dll"));
+
+            File.Copy(@"Good_Stuff\CreamAPI\SteamOverlay64.dll", Path.Combine(Directory.GetParent(path_exe).ToString(), "SteamOverlay64.dll"));
+
+            using (StreamWriter writer = File.AppendText(Path.Combine(Directory.GetParent(path_exe).ToString() + "\\dlllist.txt")))
+            {
+                writer.WriteLine("SteamOverlay64.dll\n");
+            }
+            File.Copy(@"Good_Stuff\CreamAPI\winmm.dll", Path.Combine(Directory.GetParent(path_exe).ToString(), "winmm.dll"));
         }
         #endregion
 
         #region Goldberg
-        static public void GoldbergNormal(int appid)
+        static public void GoldbergNormal(int appid, string path)
         {
+            ReplaceDLLs(path, false);
+
             foreach (string dllpath in dllpaths64)
             {
                 File.Copy(@"Good_Stuff\Goldberg Normal\steam_api64.dll", Path.Combine(dllpath, "steam_api64.dll"));
@@ -196,7 +249,7 @@ namespace WpfApp3
 
         static public void GoldbergExperimental(int appid, string path, bool denuvo)
         {
-            int steamid = 0;
+            ReplaceDLLs(path,false);
 
             string[] pathclient = Directory.GetFiles(path, "*Shipping.exe", SearchOption.AllDirectories);
             if (pathclient.Length > 0)
@@ -214,7 +267,7 @@ namespace WpfApp3
 
                 string dllpath2 = Path.Combine(dllpath, "steam_settings");
                 Directory.CreateDirectory(dllpath2);
-                denuvocpy(appid, path);
+                 
 
                 using (StreamWriter sw = File.CreateText(Path.Combine(dllpath2, "steam_appid.txt")))
                 {
@@ -225,9 +278,30 @@ namespace WpfApp3
 
                 if (denuvo)
                 {
+                    denuvocpy(appid);
+                    string steamID = "";
+                    var url = "https://steamcommunity.com/profiles/[U:1:" + accountid + "]?xml=1";
+                    using var client = new WebClient();
+
+                    try
+                    {
+                        var xmlString = client.DownloadString(url);
+
+                        XmlDocument xmlDoc = new XmlDocument();
+                        xmlDoc.LoadXml(xmlString);
+
+                        XmlNode steamID64Node = xmlDoc.SelectSingleNode("/profile/steamID64");
+                        steamID = steamID64Node.InnerText;
+                    }
+                    catch (WebException e)
+                    {
+                        Console.WriteLine($"Error: {e.Message}");
+                    }
+
+
                     using (StreamWriter sw = File.CreateText(Path.Combine(dllpath2, "force_steamid.txt")))
                     {
-                        sw.Write(steamid.ToString());
+                        sw.Write(steamID);
                     }
                     using (StreamWriter sw = File.CreateText(Path.Combine(dllpath2, "force_language.txt")))
                     {
@@ -248,7 +322,7 @@ namespace WpfApp3
                 {
                     string dllpath2 = Path.Combine(dllpath, "steam_settings");
                     Directory.CreateDirectory(dllpath2);
-                    denuvocpy(appid, path);
+                    
 
                     using (StreamWriter sw = File.CreateText(Path.Combine(dllpath2, "steam_appid.txt")))
                     {
@@ -259,9 +333,30 @@ namespace WpfApp3
 
                     if (denuvo)
                     {
+                        denuvocpy(appid);
+
+                        string steamID = "";
+                        var url = "https://steamcommunity.com/id/[U:1:" + accountid + "?xml=1";
+                        using var client = new WebClient();
+
+                        try
+                        {
+                            var xmlString = client.DownloadString(url);
+
+                            XmlDocument xmlDoc = new XmlDocument();
+                            xmlDoc.LoadXml(xmlString);
+
+                            XmlNode steamID64Node = xmlDoc.SelectSingleNode("/profile/steamID64");
+                            steamID = steamID64Node.InnerText;
+                        }
+                        catch (WebException e)
+                        {
+                            Console.WriteLine($"Error: {e.Message}");
+                        }
+
                         using (StreamWriter sw = File.CreateText(Path.Combine(dllpath2, "force_steamid.txt")))
                         {
-                            sw.Write(steamid.ToString());
+                            sw.Write(steamID);
                         }
                         using (StreamWriter sw = File.CreateText(Path.Combine(dllpath2, "force_language.txt")))
                         {
@@ -278,7 +373,9 @@ namespace WpfApp3
 
         }
 
-        static public void denuvocpy(int appid, string path)
+        private static long accountid = 0;
+
+        static public void denuvocpy(int appid)
         {
             string xml = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PirateSteam\\settings.xml");
             string steamExecutable = "";
@@ -314,6 +411,7 @@ namespace WpfApp3
                     if (directory.EndsWith("\\" + folderName))
                     {
                         string[] files = Directory.GetFiles(directory);
+                        accountid = Convert.ToInt64(Path.GetFileName(Directory.GetParent(directory).ToString()));
 
                         foreach (string file in files)
                         {
@@ -324,8 +422,6 @@ namespace WpfApp3
                         break;
                     }
                 }
-
-                //GoldbergExperimental(appid, path, true);
             }
             else
             {
@@ -377,8 +473,6 @@ namespace WpfApp3
                                     break;
                                 }
                             }
-
-                            //GoldbergExperimental(appid, path, true);
                         }
                         else
                         {
@@ -396,16 +490,144 @@ namespace WpfApp3
         #region SteamStub
         static public void SteamStubDRM64(string path)
         {
-            File.Copy(@"Good_Stuff\StubDRM\StubDRM64.dll", Path.Combine(path, "StubDRM64.dll"));
-            File.Copy(@"Good_Stuff\StubDRM\winmm.dll", Path.Combine(path, "winmm.dll"));
-            File.Copy(@"Good_Stuff\StubDRM\dlllist.txt", Path.Combine(path, "dlllist.txt"));
+            File.Copy(@"Good_Stuff\StubDRM\x64\StubDRM64.dll", Path.Combine(path, "StubDRM64.dll"));
+            if (File.Exists(path + "\\winmm.dll") == false)
+                File.Copy(@"Good_Stuff\StubDRM\winmm.dll", Path.Combine(path, "winmm.dll"));
+            using (StreamWriter writer2 = File.AppendText(path + "\\dlllist.txt"))
+            {
+                writer2.WriteLine("StubDRM64.dll\n");
+            }
         }
         static public void SteamStubDRM32(string path)
         {
-            File.Copy(@"Good_Stuff\StubDRM\StubDRM32.dll", Path.Combine(path, "StubDRM32.dll"));
-            File.Copy(@"Good_Stuff\StubDRM\winmm.dll", Path.Combine(path, "winmm.dll"));
-            File.Copy(@"Good_Stuff\StubDRM\dlllist.txt", Path.Combine(path, "dlllist.txt"));
+            File.Copy(@"Good_Stuff\StubDRM\x32\StubDRM32.dll", Path.Combine(path, "StubDRM32.dll"));
+            if (File.Exists(path + "\\winmm.dll") == false)
+                File.Copy(@"Good_Stuff\StubDRM\winmm.dll", Path.Combine(path, "winmm.dll"));
+            using (StreamWriter writer2 = File.AppendText(path + "\\dlllist.txt"))
+            {
+                writer2.WriteLine("StubDRM32.dll\n");
+            }
         }
         #endregion
+
+        private static List<string> GenerateGameNameCombinations(string gameName)
+        {
+            // Remove invalid characters from game name
+            string cleanedName = new string(gameName.Where(c => !Path.GetInvalidFileNameChars().Contains(c)).ToArray());
+
+            // Split game name into words
+            string[] words = cleanedName.Split(' ');
+
+            // Generate all combinations of the words without spaces
+            List<string> combinations = new List<string>();
+            for (int i = 1; i <= words.Length; i++)
+            {
+                foreach (var subset in words.Combinations(i))
+                {
+                    string combination = String.Concat(subset).ToLowerInvariant();
+                    combinations.Add(combination);
+                }
+            }
+
+            return combinations;
+        }
+
+        public static string[] FindGameExe(string gameName)
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.Title = "Select the Steam installation folder";
+            dialog.IsFolderPicker = true;
+            dialog.InitialDirectory = Environment.SpecialFolder.MyComputer.ToString();
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                string ParentPath = dialog.FileName;
+
+                List<string> gameNameList = GenerateGameNameCombinations(gameName);
+                string exePath = "";
+                try
+                {
+                    // Check each name combination for an executable file in the parent directory
+                    foreach (string name in gameNameList)
+                    {
+                        string[] files = Directory.GetFiles(ParentPath, name + "*.exe", SearchOption.AllDirectories);
+
+                        if (files.Length > 0)
+                        {
+                            exePath = files[0];
+                            break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle any exceptions that occur during the search
+                    Console.WriteLine($"Error searching for {gameName}: {ex.Message}");
+                }
+
+                // if exePath is "" i should ask to select it
+                string[] strings = { exePath, dialog.FileName };
+                return strings;
+            }
+            return null;
+        }
+
+        public static void RemoveCrack (string path)
+        {
+            string[] dllpaths64 = { };
+            string[] dllpaths32 = { };
+
+            dllpaths64 = Directory.GetFiles(path, "steam_api64_o.dll", SearchOption.AllDirectories);
+            dllpaths32 = Directory.GetFiles(path, "steam_api_o.dll", SearchOption.AllDirectories);
+
+            ReplaceDLLs(path, true);
+
+            foreach(string dll in dllpaths64)
+            {
+                string parent = Directory.GetParent(dll).ToString();
+
+                if (Directory.Exists(parent + "\\steam_settings"))
+                    Directory.Delete(parent + "\\steam_settings", true);
+                if (File.Exists(parent + "\\cream_api.ini") == true)
+                    File.Delete(parent + "\\cream_api.ini");
+                if (File.Exists(parent + "\\dlllist.txt") == true)
+                    File.Delete(parent + "\\dlllist.txt");
+                if (File.Exists(parent + "\\winmm.dll") == true)
+                    File.Delete(parent + "\\winmm.dll");
+                if (File.Exists(parent + "\\SteamOverlay64.dll") == true)
+                    File.Delete(parent + "\\SteamOverlay64.dll");
+                if (File.Exists(parent + "\\StubDRM64.dll") == true)
+                    File.Delete(parent + "\\StubDRM64.dll");
+                if (File.Exists(parent + "\\steamclient64.dll") == true)
+                    File.Delete(parent + "\\steamclient64.dll");
+            }
+            foreach (string dll in dllpaths32)
+            {
+                string parent = Directory.GetParent(dll).ToString();
+
+                if (Directory.Exists(parent + "\\steam_settings"))
+                    Directory.Delete(parent + "\\steam_settings",true);
+                if (File.Exists(parent + "\\cream_api.ini") == true)
+                    File.Delete(parent + "\\cream_api.ini");
+                if (File.Exists(parent + "\\dlllist.txt") == true)
+                    File.Delete(parent + "\\dlllist.txt");
+                if (File.Exists(parent + "\\winmm.dll") == true)
+                    File.Delete(parent + "\\winmm.dll");
+                if (File.Exists(parent + "\\SteamOverlay64.dll") == true)
+                    File.Delete(parent + "\\SteamOverlay64.dll");
+                if (File.Exists(parent + "\\StubDRM32.dll") == true)
+                    File.Delete(parent + "\\StubDRM32.dll");
+                if (File.Exists(parent + "\\steamclient.dll") == true)
+                    File.Delete(parent + "\\steamclient.dll");
+            }
+        }
+    }
+    public static class Extensions
+    {
+        public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> elements, int k)
+        {
+            return k == 0 ? new[] { new T[0] } :
+                elements.SelectMany((e, i) =>
+                    elements.Skip(i + 1).Combinations(k - 1).Select(c => (new[] { e }).Concat(c)));
+        }
     }
 }

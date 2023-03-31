@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Xml;
 using IWshRuntimeLibrary;
 using System.ComponentModel;
+using System.Xml.Linq;
 
 namespace WpfApp3
 {
@@ -29,6 +30,7 @@ namespace WpfApp3
             InitializeComponent();
 
             Directory.CreateDirectory(path);
+            games.Clear();
 
             if (System.IO.File.Exists(xml))
             {
@@ -50,13 +52,13 @@ namespace WpfApp3
                     game.Type = gameNode.SelectSingleNode("type").InnerText;
                     game.Background = gameNode.SelectSingleNode("background").InnerText;
                     game.Logo = gameNode.SelectSingleNode("logo").InnerText;
-                    game.Date_Added = double.Parse(gameNode.SelectSingleNode("date").InnerText);
+                    game.Date_Added = long.Parse(gameNode.SelectSingleNode("date").InnerText);
                     if(gameNode.SelectSingleNode("last_played").InnerText == "")
                     {
                         game.Last_Played = 0;
                     }
                     else 
-                        game.Last_Played = double.Parse(gameNode.SelectSingleNode("last_played").InnerText);
+                        game.Last_Played = long.Parse(gameNode.SelectSingleNode("last_played").InnerText);
                     game.SteamAppid = int.Parse(gameNode.SelectSingleNode("steamappid").InnerText);
                     game.Playtime = float.Parse(gameNode.SelectSingleNode("playtime").InnerText);
                     games.Add(game);
@@ -196,8 +198,10 @@ namespace WpfApp3
         private void bt_Play_Click(object sender, RoutedEventArgs e)
         {
             Game game = games[lbLibrary.SelectedIndex];
-            Directory.SetCurrentDirectory(game.Path_Directory);
+            string dir= Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(Directory.GetParent(game.Path).ToString());
             Process.Start(game.Path);
+            Directory.SetCurrentDirectory(dir);
         }
 
         private void bt_ShortcutMaker(object sender, RoutedEventArgs e) 
@@ -207,7 +211,7 @@ namespace WpfApp3
             WshShell shell = new WshShell();
             IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
             shortcut.TargetPath = game.Path;
-            shortcut.WorkingDirectory = game.Path_Directory;
+            shortcut.WorkingDirectory = Directory.GetParent(game.Path).ToString();
             shortcut.Save();
         }
 
@@ -228,6 +232,15 @@ namespace WpfApp3
                 {
                     Directory.Delete(game.Path_Directory, true);
                     MessageBox.Show("Deleted");
+                    XDocument xmlDoc = XDocument.Load(xml);
+                    var gameNode = xmlDoc.Descendants("game").FirstOrDefault(node => Convert.ToInt32(node.Element("steamappid")?.Value) == game.SteamAppid);
+                    if (gameNode != null)
+                    {
+                        gameNode.Remove();
+                        xmlDoc.Save(xml);
+                    }
+                    games.Remove(game);
+                    lbLibrary.Items.Remove(lbLibrary.SelectedIndex);
                 }
             }
         }

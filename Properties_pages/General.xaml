@@ -18,12 +18,15 @@
                 </LinearGradientBrush>
             </Button.Background>
         </Button>
-        <Button x:Name="bt_Close" Content="X" HorizontalAlignment="Left" Margin="626,0,0,0" VerticalAlignment="Top" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="White" Click="bt_Close_Click"/>
         <TextBlock x:Name="textBlock1_Copy" HorizontalAlignment="Left" Margin="32,123,0,0" TextWrapping="Wrap" Text="APPLIED CRACK" VerticalAlignment="Top" Foreground="#FF848586" FontFamily="Tahoma" FontSize="16"/>
-        <RadioButton GroupName="Crack" x:Name="rb_None" Content="None" Margin="43,170,506,412" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_CreamAPI_Checked"/>
+        <RadioButton GroupName="Crack" x:Name="rb_None" Content="None" Margin="43,170,506,412" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16"/>
         <RadioButton GroupName="Crack" x:Name="rb_CreamAPI" Content="CreamAPI" Margin="151,170,400,412" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_CreamAPI_Checked"/>
-        <RadioButton GroupName="Crack" x:Name="rb_Goldberg" Content="Goldberg" Margin="300,170,250,412" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_CreamAPI_Checked"/>
-        <RadioButton GroupName="Crack" x:Name="rb_Goldberg_Experimental" Content="Goldberg Experimental" Margin="443,170,10,410" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_CreamAPI_Checked"/>
+        <RadioButton GroupName="Crack" x:Name="rb_Goldberg" Content="Goldberg" Margin="300,170,250,412" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_Goldberg_Checked"/>
+        <RadioButton GroupName="Crack" x:Name="rb_Goldberg_Experimental" Content="Goldberg Experimental" Margin="443,170,10,410" Background="White" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="rb_GoldbergExperimental_Checked"/>
+        <CheckBox x:Name="cb_SteamStub" Content="SteamStubDRM" HorizontalAlignment="Left" Margin="32,310,0,0" VerticalAlignment="Top" Height="31" Width="154" Foreground="#FF969696" FontFamily="Tahoma" FontSize="16" Checked="cb_SteamStub_Checked"/>
+        <TextBlock x:Name="textBlock1_Copy1" HorizontalAlignment="Left" Margin="32,250,0,0" TextWrapping="Wrap" Text="BYPASS STEAMSTUB" VerticalAlignment="Top" Foreground="#FF848586" FontFamily="Tahoma" FontSize="16"/>
+        <TextBlock x:Name="textBlock1_Copy2" HorizontalAlignment="Left" Margin="32,276,0,0" TextWrapping="Wrap" Text="If this doesn't work try  " VerticalAlignment="Top" Foreground="#FF848586" FontFamily="Tahoma"> <Hyperlink NavigateUri="https://github.com/atom0s/Steamless" RequestNavigate="Hyperlink_RequestNavigate"><Run Text="Steamless"/></Hyperlink></TextBlock>
+
 
     </Grid>
 </Page>

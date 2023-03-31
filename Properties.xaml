@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfApp3"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="Properties" Height="600" Width="840">
+        Title="Properties" Height="620" Width="860">
     <Grid Background="#FF2A2D34">
         <Grid Margin="0,0,640,0" Width="200">
             <Grid Height="NaN" Margin="0,0,0,480">
@@ -19,7 +19,7 @@
             </ListBox>
         </Grid>
         <Grid Margin="200,0,0,0">
-            <Frame x:Name="frame" Content="Frame" RenderTransformOrigin="0.048,0.041" NavigationUIVisibility="Hidden" Width="640" Height="600">
+            <Frame x:Name="frame" Content="Frame" RenderTransformOrigin="0.048,0.041" NavigationUIVisibility="Hidden" Width="660" Height="600">
                 <Frame.Background>
                     <RadialGradientBrush Center="0,0" RadiusX="1" RadiusY="1">
                         <GradientStop Color="#FF30363E" Offset="0"/>
@@ -28,6 +28,5 @@
                 </Frame.Background>
             </Frame>
         </Grid>
-
     </Grid>
 </Window>

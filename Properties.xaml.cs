@@ -24,6 +24,7 @@ namespace WpfApp3
             InitializeComponent();
             game = game1;
             tb_Name.Text = game.Title;
+            frame.Content = new Properties.General(game);
         }
         private Game game;
         private void lb_Properties_SelectionChanged(object sender, SelectionChangedEventArgs e)

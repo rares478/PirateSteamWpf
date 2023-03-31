@@ -34,10 +34,19 @@
     <None Update="Good_Stuff\CreamAPI\creamapi.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Good_Stuff\CreamAPI\creamapi.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Good_Stuff\CreamAPI\SteamOverlay64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Good_Stuff\CreamAPI\steam_api.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Good_Stuff\CreamAPI\steam_api64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Good_Stuff\CreamAPI\winmm.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Good_Stuff\Goldberg Experimental\steamclient.dll">

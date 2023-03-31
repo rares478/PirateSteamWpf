@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Policy;
@@ -37,10 +38,10 @@ namespace WpfApp3
 
         private void bt_SelectPath_Click(object sender, RoutedEventArgs e)
         {
-            string path = Crack.find_exe();
-            game.Path = path;
+            string[] strings = Crack.FindGameExe(tb_Name.Text);
+            game.Path = strings[0];
             tb_Path.Text = game.Path;
-            game.Path_Directory = Path.GetDirectoryName(path);
+            game.Path_Directory = strings[1];
         }
 
         private void bt_Click(object sender, RoutedEventArgs e)
@@ -59,7 +60,7 @@ namespace WpfApp3
             bt_Crack.Visibility = Visibility.Hidden;
 
             Button bt = sender as Button;
-            switch (bt.Name){
+            switch (bt.Content){
                 case "Denuvo": type = 0;
                     break;
                 case "Crack": type = 1;
@@ -101,9 +102,10 @@ namespace WpfApp3
                 XmlElement titleElement = xmlDoc.CreateElement("title");
                 titleElement.InnerText = tb_Name.Text;
                 gameElement.AppendChild(titleElement);
+                game.Title = titleElement.InnerText;
 
                 XmlElement pathElement = xmlDoc.CreateElement("path");
-                pathElement.InnerText = tb_Path.Text;
+                pathElement.InnerText = game.Path;
                 gameElement.AppendChild(pathElement);
 
                 XmlElement pathdirElement = xmlDoc.CreateElement("path_directory");
@@ -115,7 +117,7 @@ namespace WpfApp3
                     if (type == 0)
                     { 
                         crackElement.InnerText = "Denuvo";
-                        Crack.GoldbergExperimental(appid, pathdirElement.InnerText, true);
+                        Crack.GoldbergExperimental(appid, game.Path_Directory, true);
                     }
                     else if (type == 1)
                     {
@@ -123,20 +125,23 @@ namespace WpfApp3
                         XmlDocument doc = new XmlDocument();
                         doc.Load(settings);
                         XmlNodeList crackElements = doc.GetElementsByTagName("Crack");
+                        
                         foreach (XmlNode crack in crackElements)
                         {
-                            switch (crackElement.InnerText)
+                            MessageBox.Show(crack.InnerText);
+                            switch (crack.InnerText)
                             {
+                                
                                 case "CreamAPI":
                                     crackElement.InnerText = "CreamAPI";
-                                    Crack.CreamAPI(appid);
+                                    Crack.CreamAPI(appid, game.Path_Directory, game.Path);
                                     break;
                                 case "Goldberg":
-                                    Crack.GoldbergNormal(appid);
+                                    Crack.GoldbergNormal(appid, game.Path_Directory);
                                     crackElement.InnerText = "Goldberg";
                                     break;
                                 case "Goldberg Experimental":
-                                    Crack.GoldbergExperimental(appid, pathElement.InnerText, false);
+                                    Crack.GoldbergExperimental(appid, game.Path_Directory, false);
                                     crackElement.InnerText = "Goldberg Experimental";
                                     break;
                             }
@@ -145,92 +150,95 @@ namespace WpfApp3
                     else crackElement.InnerText = "PreCracked";
                 }
                 gameElement.AppendChild(crackElement);
+                game.Type = crackElement.InnerText;
 
                 XmlElement backgroundElement = xmlDoc.CreateElement("background");
                 backgroundElement.InnerText = "https://cdn.cloudflare.steamstatic.com/steam/apps/"+ appid.ToString() +"/library_hero.jpg?t=1624181121";
                 gameElement.AppendChild(backgroundElement);
+                game.Background = backgroundElement.InnerText;
 
                 XmlElement logoElement = xmlDoc.CreateElement("logo");
                 logoElement.InnerText = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + appid.ToString() + "/logo.png?t=1624181121";
                 gameElement.AppendChild(logoElement);
+                game.Logo = logoElement.InnerText;
 
                 XmlElement dateElement = xmlDoc.CreateElement("date");
                 long date= DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 dateElement.InnerText = date.ToString();
                 gameElement.AppendChild(dateElement);
+                game.Date_Added = date;
 
                 XmlElement last_playedElement = xmlDoc.CreateElement("last_played");
                 last_playedElement.InnerText = "";
                 gameElement.AppendChild(last_playedElement);
+                game.Last_Played = 0;
 
                 XmlElement steamAppIdElement = xmlDoc.CreateElement("steamappid");
                 steamAppIdElement.InnerText = appid.ToString();
                 gameElement.AppendChild(steamAppIdElement);
+                game.SteamAppid = Convert.ToInt32(steamAppIdElement.InnerText);
 
                 XmlElement playtimeElement = xmlDoc.CreateElement("playtime");
                 playtimeElement.InnerText = "0.0";
                 gameElement.AppendChild(playtimeElement);
+                game.Playtime = 0.0f;
 
                 XmlNode gamesNode = xmlDoc.SelectSingleNode("/games");
                 gamesNode.AppendChild(gameElement);
 
                 xmlDoc.Save(xml);
+
             }
             
         }
-        /*public static string FindGameDirectory(string gameName, string configName, bool attemptCombos = true)
+
+        public static List<string> GenerateGameNameCombinations(string gameName)
         {
-            // Banned characters (can't be used in folder names in Windows)
-            char[] banned_characters = new char[] { '\\', '/', ':', '*', '?', '\"', '<', '>', '|' };
-            foreach (char c in banned_characters)
-            {
-                gameName = gameName.Replace(c.ToString(), "");
-            }
+            // Remove invalid characters from game name
+            string cleanedName = new string(gameName.Where(c => !Path.GetInvalidFileNameChars().Contains(c)).ToArray());
 
-            gameName = gameName.ToLower();
-            List<string> gameNameList = new List<string> { gameName };
+            // Split game name into words
+            string[] words = cleanedName.Split(' ');
 
-            // Create a list with all the combinations of name possible
-            char[] characters = new char[] { ' ', '-', '\'', '&' };
-            for (int i = 0; i < characters.Length; i++)
+            // Generate all combinations of the words without spaces
+            List<string> combinations = new List<string>();
+            for (int i = 1; i <= words.Length; i++)
             {
-                for (int j = 0; j < characters.Length - i; j++)
+                foreach (var subset in words.Combinations(i))
                 {
-                    string[] combo = new string[i + 1];
-                    for (int k = 0; k <= i; k++)
-                    {
-                        combo[k] = characters[j + k].ToString();
-                    }
-
-                    // This will remove all possible combinations of characters that are often not included in folder names
-                    string buffer = gameName;
-                    foreach (string c in combo)
-                    {
-                        buffer = buffer.Replace(c, "");
-                    }
-
-                    if (!gameNameList.Contains(buffer))
-                    {
-                        gameNameList.Add(buffer);
-                    }
-
-                    // Try changing double spaces "  " to single spaces " "
-                    string buffer2 = buffer.Replace("  ", " ");
-                    if (buffer2 != buffer && !gameNameList.Contains(buffer2))
-                    {
-                        gameNameList.Add(buffer2);
-                    }
+                    string combination = String.Concat(subset).ToLowerInvariant();
+                    combinations.Add(combination);
                 }
             }
 
-            foreach (string folder in Directory.GetDirectories(config["Locations"][configName]))
+            return combinations;
+        }
+
+        public static string FindGameDirectory(string gameName, string ParentPath)
+        {
+            List<string> gameNameList = GenerateGameNameCombinations(gameName);
+            string exePath = null;
+            try
             {
-                if (gameNameList.Contains(folder.ToLower()))
+                // Check each name combination for an executable file in the parent directory
+                foreach (string name in gameNameList)
                 {
-                    return folder;
+                    string[] files = Directory.GetFiles(ParentPath, name + "*.exe", SearchOption.AllDirectories);
+
+                    if (files.Length > 0)
+                    {
+                        exePath = files[0];
+                        break;
+                    }
                 }
             }
-            return "error";
-        }*/
+            catch (Exception ex)
+            {
+                // Handle any exceptions that occur during the search
+                Console.WriteLine($"Error searching for {gameName}: {ex.Message}");
+            }
+
+            return exePath;
+        }
     }
 }

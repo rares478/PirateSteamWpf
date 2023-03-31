@@ -17,7 +17,7 @@
                 </StackPanel.Background>
             </StackPanel>
             <TextBlock x:Name="tb_Library" HorizontalAlignment="Left" Margin="29,21,0,0" TextWrapping="Wrap" VerticalAlignment="Top" MouseLeftButtonDown="textBlock_MouseLeftButtonDown" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37"><Run Text="Library"/><LineBreak/><Run/></TextBlock>
-            <TextBlock x:Name="tb_Settings" HorizontalAlignment="Left" Margin="560,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="36" MouseLeftButtonDown="tb_Settings_MouseLeftButtonDown" Text="Settings"><Run Text="Settings"/><LineBreak/><Run/></TextBlock>
+            <TextBlock x:Name="tb_Settings" HorizontalAlignment="Left" Margin="560,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="36" MouseLeftButtonDown="tb_Settings_MouseLeftButtonDown" Text="Settings"><LineBreak/></TextBlock>
             <TextBlock x:Name="tb_AddGame" HorizontalAlignment="Left" Margin="143,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="37" Text="Add a Game&#xD;&#xA;" MouseLeftButtonDown="tb_AddGame_MouseLeftButtonDown"/>
             <TextBlock x:Name="tb_Sites" HorizontalAlignment="Left" Margin="310,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" RenderTransformOrigin="2.333,0.378" Foreground="White" FontFamily="Tahoma" FontSize="24" Height="36" MouseLeftButtonDown="tb_Sites_MouseLeftButtonDown" Text="Recommended sites"/>
         </Grid>
