@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Octokit;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfApp3.Classes;
 
 namespace WpfApp3
 {
@@ -20,15 +22,18 @@ namespace WpfApp3
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        public static Classes.User User;
         public MainWindow()
         {
             InitializeComponent();
-            frameMain.Content = new Page1();
+            frameMain.Content = new Library();
+            User = new Classes.User("rares478", "Paralelipipedut12.");
         }
 
         private void textBlock_MouseLeftButtonDown(object sender, MouseEventArgs e)
         {
-            frameMain.Content = new Page1();
+            frameMain.Content = new Library();
         }
 
         private void tb_AddGame_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -44,5 +49,14 @@ namespace WpfApp3
         {
             frameMain.Content = new Sites();
         }
+
+        private void textBlock_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
+        {
+            Game game = new Game();
+            game.SteamAppid = 1326470;
+            Install download = new Install(this,game);
+            download.ShowDialog();
+        }
+
     }
 }

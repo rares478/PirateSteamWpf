@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
 using System.Xml.Linq;
+using WpfApp3.Classes;
 
 namespace WpfApp3.Properties
 {
@@ -77,6 +78,7 @@ namespace WpfApp3.Properties
                 if (game != null)
                 {
                     // set the value of the launch element to the desired value
+
                     gameElement.Element("type").Value = "CreamAPI";
 
                     // save the modified XML file

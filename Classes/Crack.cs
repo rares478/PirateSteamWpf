@@ -13,8 +13,9 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Policy;
+using System.Runtime.CompilerServices;
 
-namespace WpfApp3
+namespace WpfApp3.Classes
 {
     class Crack
     {
@@ -90,7 +91,7 @@ namespace WpfApp3
         }
 
 
-        private static void ReplaceDLLs(string directory,bool swap)
+        private static void ReplaceDLLs(string directory, bool swap)
         {
             Array.Clear(dllpaths64);
             Array.Clear(dllpaths32);
@@ -139,13 +140,13 @@ namespace WpfApp3
                 }
             }
 
-            
+
         }
 
         #region CreamAPI
         static public void CreamAPI(int appid, string path_dir, string path_exe)
         {
-            ReplaceDLLs(path_dir,false);
+            ReplaceDLLs(path_dir, false);
 
             foreach (string dllpath in dllpaths64)
             {
@@ -171,7 +172,7 @@ namespace WpfApp3
                 }
             }
 
-            if(File.Exists(Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api64.dll")) == false)
+            if (File.Exists(Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api64.dll")) == false)
                 File.Copy(@"Good_Stuff\CreamAPI\steam_api64.dll", Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api64.dll"));
 
             if (dllpaths32.Length > 0)
@@ -189,7 +190,7 @@ namespace WpfApp3
             if (File.Exists(Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api64_o.dll")) == false)
                 File.Copy(dllpaths64[0] + "\\steam_api64_o.dll", Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api64_o.dll"));
 
-            if(dllpaths32.Length > 0)
+            if (dllpaths32.Length > 0)
                 if (File.Exists(Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api_o.dll")) == false)
                     File.Copy(dllpaths32[0] + "\\steam_api_o.dll", Path.Combine(Directory.GetParent(path_exe).ToString(), "steam_api_o.dll"));
 
@@ -249,7 +250,7 @@ namespace WpfApp3
 
         static public void GoldbergExperimental(int appid, string path, bool denuvo)
         {
-            ReplaceDLLs(path,false);
+            ReplaceDLLs(path, false);
 
             string[] pathclient = Directory.GetFiles(path, "*Shipping.exe", SearchOption.AllDirectories);
             if (pathclient.Length > 0)
@@ -267,7 +268,7 @@ namespace WpfApp3
 
                 string dllpath2 = Path.Combine(dllpath, "steam_settings");
                 Directory.CreateDirectory(dllpath2);
-                 
+
 
                 using (StreamWriter sw = File.CreateText(Path.Combine(dllpath2, "steam_appid.txt")))
                 {
@@ -322,7 +323,7 @@ namespace WpfApp3
                 {
                     string dllpath2 = Path.Combine(dllpath, "steam_settings");
                     Directory.CreateDirectory(dllpath2);
-                    
+
 
                     using (StreamWriter sw = File.CreateText(Path.Combine(dllpath2, "steam_appid.txt")))
                     {
@@ -524,7 +525,7 @@ namespace WpfApp3
             {
                 foreach (var subset in words.Combinations(i))
                 {
-                    string combination = String.Concat(subset).ToLowerInvariant();
+                    string combination = string.Concat(subset).ToLowerInvariant();
                     combinations.Add(combination);
                 }
             }
@@ -571,7 +572,7 @@ namespace WpfApp3
             return null;
         }
 
-        public static void RemoveCrack (string path)
+        public static void RemoveCrack(string path)
         {
             string[] dllpaths64 = { };
             string[] dllpaths32 = { };
@@ -581,7 +582,7 @@ namespace WpfApp3
 
             ReplaceDLLs(path, true);
 
-            foreach(string dll in dllpaths64)
+            foreach (string dll in dllpaths64)
             {
                 string parent = Directory.GetParent(dll).ToString();
 
@@ -605,7 +606,7 @@ namespace WpfApp3
                 string parent = Directory.GetParent(dll).ToString();
 
                 if (Directory.Exists(parent + "\\steam_settings"))
-                    Directory.Delete(parent + "\\steam_settings",true);
+                    Directory.Delete(parent + "\\steam_settings", true);
                 if (File.Exists(parent + "\\cream_api.ini") == true)
                     File.Delete(parent + "\\cream_api.ini");
                 if (File.Exists(parent + "\\dlllist.txt") == true)

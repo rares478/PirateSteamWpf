@@ -19,6 +19,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
 using System.Xml.Linq;
+using WpfApp3.Classes;
 using Path = System.IO.Path;
 
 namespace WpfApp3

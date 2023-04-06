@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfApp3
+namespace WpfApp3.Classes
 {
     public class PatchNote
     {

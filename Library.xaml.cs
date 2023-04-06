@@ -1,31 +1,40 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using IWshRuntimeLibrary;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
-using System.Xml;
-using IWshRuntimeLibrary;
-using System.ComponentModel;
+using System.Windows.Navigation;
 using System.Xml.Linq;
+using System.Xml;
+using WpfApp3.Classes;
 
 namespace WpfApp3
 {
-    public partial class Page1 : Page
+    /// <summary>
+    /// Interaction logic for Library.xaml
+    /// </summary>
+    public partial class Library : Page
     {
-        
         private static string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PirateSteam");
         private static string xml = path + "\\Games.xml";
         public static List<PatchNote> notes = new List<PatchNote>();
         public static List<Game> games = new List<Game>();
 
-        public Page1()
+        public Library()
         {
             InitializeComponent();
 
@@ -43,7 +52,7 @@ namespace WpfApp3
                 {
                     XmlNode pathNode = gameNode.SelectSingleNode("title");
                     string pathValue = pathNode.InnerText.Trim();
-                    
+
 
                     Game game = new Game();
                     game.Title = pathValue;
@@ -53,11 +62,11 @@ namespace WpfApp3
                     game.Background = gameNode.SelectSingleNode("background").InnerText;
                     game.Logo = gameNode.SelectSingleNode("logo").InnerText;
                     game.Date_Added = long.Parse(gameNode.SelectSingleNode("date").InnerText);
-                    if(gameNode.SelectSingleNode("last_played").InnerText == "")
+                    if (gameNode.SelectSingleNode("last_played").InnerText == "")
                     {
                         game.Last_Played = 0;
                     }
-                    else 
+                    else
                         game.Last_Played = long.Parse(gameNode.SelectSingleNode("last_played").InnerText);
                     game.SteamAppid = int.Parse(gameNode.SelectSingleNode("steamappid").InnerText);
                     game.Playtime = float.Parse(gameNode.SelectSingleNode("playtime").InnerText);
@@ -65,19 +74,19 @@ namespace WpfApp3
                     lbLibrary.Items.Add(pathValue);
                 }
             }
-            lbLibrary.Items.SortDescriptions.Add(new SortDescription("",ListSortDirection.Ascending));
+            lbLibrary.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             games = games.OrderBy(g => g.Title).ToList();
             lbLibrary.SelectedIndex = 0;
         }
 
-        
+
 
         private void notes_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (frame.Visibility == Visibility.Visible)
             {
                 frame.Visibility = Visibility.Collapsed;
-                gridLibrary.Effect = null;
+                scroll.Effect = null;
             }
             else
             {
@@ -97,7 +106,7 @@ namespace WpfApp3
 
 
                 frame.Content = new Page2(clickedNote);
-                gridLibrary.Effect = new BlurEffect();
+                scroll.Effect = new BlurEffect();
 
                 frame.Width = 875;
 
@@ -112,10 +121,10 @@ namespace WpfApp3
 
         private void GridLibrary_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if(frame.Visibility == Visibility.Visible) 
+            if (frame.Visibility == Visibility.Visible)
             {
                 frame.Visibility = Visibility.Collapsed;
-                gridLibrary.Effect = null;
+                scroll.Effect = null;
             }
         }
 
@@ -124,7 +133,7 @@ namespace WpfApp3
             if (frame.Visibility == Visibility.Visible)
             {
                 frame.Visibility = Visibility.Collapsed;
-                gridLibrary.Effect = null;
+                scroll.Effect = null;
             }
 
             Game game = games[lbLibrary.SelectedIndex];
@@ -157,7 +166,7 @@ namespace WpfApp3
 
             JObject data = JObject.Parse(json);
             JArray newsItems = (JArray)data["appnews"]["newsitems"];
-            
+
             List<PatchNote> notes = new List<PatchNote>();
             foreach (JObject newsItem in newsItems)
             {
@@ -187,24 +196,24 @@ namespace WpfApp3
                     }
                     else
                     {
-                        notes.Add(new PatchNote() { Title = title, Content = mid, Date = formattedDate, IsNews = true});
+                        notes.Add(new PatchNote() { Title = title, Content = mid, Date = formattedDate, IsNews = true });
                     }
                 }
             }
             NotesList.ItemsSource = notes;
-            
+
         }
 
         private void bt_Play_Click(object sender, RoutedEventArgs e)
         {
             Game game = games[lbLibrary.SelectedIndex];
-            string dir= Directory.GetCurrentDirectory();
+            string dir = Directory.GetCurrentDirectory();
             Directory.SetCurrentDirectory(Directory.GetParent(game.Path).ToString());
             Process.Start(game.Path);
             Directory.SetCurrentDirectory(dir);
         }
 
-        private void bt_ShortcutMaker(object sender, RoutedEventArgs e) 
+        private void bt_ShortcutMaker(object sender, RoutedEventArgs e)
         {
             Game game = games[lbLibrary.SelectedIndex];
             string shortcutPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\" + game.Title + ".lnk";
@@ -249,7 +258,7 @@ namespace WpfApp3
             Game game = games[lbLibrary.SelectedIndex];
             PropertiesYeah newProperties = new PropertiesYeah(game);
             newProperties.Show();
-            
+
         }
 
         private void ListBox_ContextMenuOpening(object sender, ContextMenuEventArgs e)
