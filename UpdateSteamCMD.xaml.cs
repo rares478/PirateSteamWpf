@@ -138,11 +138,14 @@ namespace WpfApp3
 
         private async Task Process_Game(int appid)
         {
+            if (appid == 214510)
+                MessageBox.Show("ceva nu e bine");
             Process process = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = "D:\\Codeblocks\\coduri\\Visual Studio\\WpfApp3\\bin\\Debug\\net7.0-windows\\Steam\\script_info.bat",
                 WorkingDirectory = "D:\\Codeblocks\\coduri\\Visual Studio\\WpfApp3\\bin\\Debug\\net7.0-windows\\Steam",
+                CreateNoWindow = true,
                 Arguments = appid.ToString()
             };
 
@@ -150,6 +153,10 @@ namespace WpfApp3
             process.Start();
             await process.WaitForExitAsync();
 
+            while ((Process.GetProcessesByName("cmd").Length > 0) == true)
+            {
+
+            }
 
             string info_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Steam", "app_info.txt");
             using (StreamReader sr = new StreamReader(info_path))
@@ -165,19 +172,13 @@ namespace WpfApp3
                     {
                         Games.Add(nameValue, appid);
                     }
-
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        tb_ids.AppendText(nameValue + Environment.NewLine);
-                    });
                 }
                 sr.Close();
             }
-            File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Steam", "app_info.txt"));
         }
 
 
-        private async void Process_Games()
+        private void Process_Games()
         {
             string file_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Steam", "output.txt");
             using (StreamReader sr = new StreamReader(file_path))
@@ -210,7 +211,8 @@ namespace WpfApp3
 
                                 if(Games.ContainsValue(id) == false)
                                 {
-                                    await Process_Game(id);
+                                    Process_Game(id);
+                                    
                                 }
                             }
                         }
