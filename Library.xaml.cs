@@ -70,6 +70,7 @@ namespace WpfApp3
                         game.Last_Played = long.Parse(gameNode.SelectSingleNode("last_played").InnerText);
                     game.SteamAppid = int.Parse(gameNode.SelectSingleNode("steamappid").InnerText);
                     game.Playtime = float.Parse(gameNode.SelectSingleNode("playtime").InnerText);
+                    game.Installed = true;
                     games.Add(game);
                     lbLibrary.Items.Add(pathValue);
                 }
@@ -77,6 +78,7 @@ namespace WpfApp3
             lbLibrary.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             games = games.OrderBy(g => g.Title).ToList();
             lbLibrary.SelectedIndex = 0;
+            games[3].Installed = false;
         }
 
 
@@ -135,6 +137,10 @@ namespace WpfApp3
                 frame.Visibility = Visibility.Collapsed;
                 scroll.Effect = null;
             }
+
+            LoadingBar.Visibility = Visibility.Collapsed;
+            tb_Downloading.Visibility = Visibility.Collapsed;
+            tb_down_of_total.Visibility = Visibility.Collapsed;
 
             Game game = games[lbLibrary.SelectedIndex];
 
@@ -204,13 +210,23 @@ namespace WpfApp3
 
         }
 
-        private void bt_Play_Click(object sender, RoutedEventArgs e)
+        private async void bt_Play_Click(object sender, RoutedEventArgs e)
         {
             Game game = games[lbLibrary.SelectedIndex];
-            string dir = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(Directory.GetParent(game.Path).ToString());
-            Process.Start(game.Path);
-            Directory.SetCurrentDirectory(dir);
+            if (game.Installed == true)
+            {
+
+                string dir = Directory.GetCurrentDirectory();
+                Directory.SetCurrentDirectory(Directory.GetParent(game.Path).ToString());
+                Process.Start(game.Path);
+                Directory.SetCurrentDirectory(dir);
+            }
+            else
+            {
+                Install install = new Install(game,this);
+                install.ShowDialog();
+
+            }
         }
 
         private void bt_ShortcutMaker(object sender, RoutedEventArgs e)
@@ -273,6 +289,74 @@ namespace WpfApp3
                 }
             }
             e.Handled = true;
+        }
+
+        public void downloadGame(int appid, string Path, long size)
+        {
+            LoadingBar.Visibility = Visibility.Visible;
+            tb_Downloading.Visibility = Visibility.Visible;
+            tb_down_of_total.Visibility = Visibility.Visible;
+            this.size = size;
+            Path = "D:\\Downloads\\tulip\\descarca aici";
+
+
+            var processInfo = new ProcessStartInfo
+            {
+                FileName = "D:\\Downloads\\tulip\\downloader\\DepotDownloader.exe",
+                Arguments = $"-app 1326470 -username {MainWindow.User.Username} -password {MainWindow.User.Password}{(Path != null ? $" -dir \"{Path}\"" : $" -dir \"{AppContext.BaseDirectory}\\manifest\"")}",
+                CreateNoWindow = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+
+            var process = new Process { StartInfo = processInfo };
+            process.OutputDataReceived += Process_OutputDataReceived;
+            process.Start();
+            process.BeginOutputReadLine();
+            process.StandardInput.WriteLine("rpkck");
+        }
+
+        private void UpdateLoadingBar(string percentageString)
+        {
+            float percentage;
+            
+            if (float.TryParse(percentageString.TrimEnd('%'), out percentage))
+            {
+                tb_down_of_total.Text = Util.FormatBytes(Convert.ToInt64(percentage * size / 100)) + " of " + Util.FormatBytes(size);
+                Dispatcher.Invoke(() =>
+                {
+                    LoadingBar.Value = percentage;
+                });
+            }
+        }
+
+        private long size;
+
+        private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                string outputText = e.Data;
+
+                Dispatcher.Invoke(() =>
+                {
+                    tb_scrie_aici.AppendText(outputText + Environment.NewLine);
+                });
+
+                int percentageIndex = outputText.LastIndexOf('%');
+
+                if (percentageIndex != -1)
+                {
+                    int startIndex = outputText.LastIndexOf(' ', percentageIndex) + 1;
+                    int length = percentageIndex - startIndex + 1;
+
+                    string percentage = outputText.Substring(startIndex, length);
+
+                    // Update the loading bar with the extracted percentage
+                    UpdateLoadingBar(percentage);
+                }
+            }
         }
     }
 }

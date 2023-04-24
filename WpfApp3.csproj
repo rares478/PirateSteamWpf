@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <AppDesignerFolder>Properties_pages</AppDesignerFolder>
+    <StartupObject>WpfApp3.App</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

@@ -18,6 +18,7 @@ namespace WpfApp3.Classes
         public int SteamAppid { get; set; }
         public float Playtime { get; set; }
         public string Logo { get; set; }
+        public bool Installed { get; set; }
 
     }
 }

@@ -23,29 +23,29 @@ namespace WpfApp3
     {    
         private string InstallPath = string.Empty;
 
-        private MainWindow mainWindow;
         private Game game;
+        private Library library;
 
-        public Install(MainWindow main,Game game)
+        public Install(Game game, Library library)
         {
             InitializeComponent();
             Loaded += MyWindow_Loaded;
-            mainWindow = main;
             this.game = game;
+            this.library = library;
         }
         
 
         private async void MyWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            await GetTotalBytesOnDiskAsync("rares478", "Paralelipipedut12.", 1326470);
+            await GetTotalBytesOnDiskAsync();
         }
 
         public static async Task<string> downloadManifest(string username, string password, int appid, string Path = null)
         {
-            /*var processInfo = new ProcessStartInfo
+            var processInfo = new ProcessStartInfo
             {
                 FileName = "D:\\Downloads\\tulip\\downloader\\DepotDownloader.exe",
-                Arguments = $"-app {appid} -manifest-only -username {username} -password {password}{(Path != null ? $" -dir \"{Path}\"" : $" -dir \"{AppContext.BaseDirectory}\\manifest\"")}",
+                Arguments = $"-app 1326470 -manifest-only -username {MainWindow.User.Username} -password {MainWindow.User.Password}{(Path != null ? $" -dir \"{Path}\"" : $" -dir \"{AppContext.BaseDirectory}\\manifest\"")}",
                 CreateNoWindow = true,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
@@ -55,9 +55,9 @@ namespace WpfApp3
             var process = new Process { StartInfo = processInfo };
             process.Start();
             process.BeginOutputReadLine();
-            process.StandardInput.WriteLine("8c6w4");
+            process.StandardInput.WriteLine("rpkck");
 
-            await process.WaitForExitAsync();*/
+            await process.WaitForExitAsync();
             if (Path != null)
             {
                 return Directory.GetFiles(Path, "*.txt", SearchOption.AllDirectories).FirstOrDefault();
@@ -78,6 +78,7 @@ namespace WpfApp3
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 InstallPath = dialog.FileName;
+                tb_Location.Text = dialog.FileName;
                 string dir = Path.GetPathRoot(InstallPath);
                 long size = 0;
 
@@ -129,17 +130,40 @@ namespace WpfApp3
             throw new Exception($"Could not find asset");
         }
 
-        private async void bt_Crack_Click(object sender, RoutedEventArgs e)
+        private async Task WaitForButtonClickAsync()
         {
-            //DownloadReleaseAsset("SteamRE", "DepotDownloader");
+            // Use TaskCompletionSource to create a task that completes when the button is clicked
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
 
-            this.Close();
+            // Attach the event handler to the button click event
+            bt_Crack.Click += (sender, e) =>
+            {
+                // Complete the task when the button is clicked
+                Library libraryPage = System.Windows.Application.Current.MainWindow.Content as Library;
+                libraryPage?.downloadGame(game.SteamAppid, tb_Location.Text,Convert.ToInt64(tb_DiskRequired.Text));
+
+                tcs.SetResult(true);
+            };
+
+            // Wait for the task to complete
+            await tcs.Task;
         }
 
-
-        public async Task GetTotalBytesOnDiskAsync(string username, string password,int appid)
+        public async void bt_Crack_Click(object sender, RoutedEventArgs e)
         {
-            string manifestFilePath = await downloadManifest(username, password,appid);
+            //DownloadReleaseAsset("SteamRE", "DepotDownloader");
+            this.Close();
+            library.downloadGame(game.SteamAppid, tb_Location.Text, totalBytesOnDisk);
+
+
+            
+        }
+
+        private long totalBytesOnDisk;
+
+        public async Task GetTotalBytesOnDiskAsync()
+        {
+            string manifestFilePath = await downloadManifest(MainWindow.User.Username, MainWindow.User.Password,game.SteamAppid);
             tb_EstTime.Text = manifestFilePath;
 
             if (!string.IsNullOrEmpty(manifestFilePath))
@@ -153,6 +177,7 @@ namespace WpfApp3
                         string[] parts = line.Split(':');
                         if (parts.Length == 2 && long.TryParse(parts[1].Trim(), out long totalBytesOnDisk))
                         {
+                            this.totalBytesOnDisk = totalBytesOnDisk;
                             tb_DiskRequired.Text = Util.FormatBytes(totalBytesOnDisk);
                         }
                     }

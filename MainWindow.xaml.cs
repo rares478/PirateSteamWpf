@@ -1,8 +1,13 @@
 ﻿using Octokit;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,7 +17,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WpfApp3.Classes;
 
 namespace WpfApp3
@@ -24,12 +28,18 @@ namespace WpfApp3
     {
 
         public static Classes.User User;
+        public static Process SteamCMD = new Process();
+
         public MainWindow()
         {
+            User = new Classes.User("rares478", "Paralelipipedut12.");
+
             InitializeComponent();
             frameMain.Content = new Library();
-            User = new Classes.User("rares478", "Paralelipipedut12.");
+
         }
+
+
 
         private void textBlock_MouseLeftButtonDown(object sender, MouseEventArgs e)
         {
@@ -48,14 +58,6 @@ namespace WpfApp3
         private void tb_Sites_MouseLeftButtonDown(Object sender, MouseButtonEventArgs e)
         {
             frameMain.Content = new Sites();
-        }
-
-        private void textBlock_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
-        {
-            Game game = new Game();
-            game.SteamAppid = 1326470;
-            Install download = new Install(this,game);
-            download.ShowDialog();
         }
 
     }

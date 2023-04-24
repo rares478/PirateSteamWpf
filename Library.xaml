@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:WpfApp3"
       mc:Ignorable="d" 
-      d:DesignHeight="1363.487" d:DesignWidth="899.666"
+      d:DesignHeight="1363.487" d:DesignWidth="1200"
       Title="Library">
 
     <Grid>
@@ -112,17 +112,20 @@
                         <Image x:Name="img_Background" Stretch="UniformToFill" />
                         <Image x:Name="img_Logo" Stretch="Uniform" Height="144" Width="256" Margin="200,40,200,287"/>
                     </Grid>
-                    
+
                     <Grid Margin="0,320,0,0" VerticalAlignment="Top" Height="70">
-                        <StackPanel Height="72" VerticalAlignment="Center" Background="#FF232932" Opacity="0.8"/>
-                        <ProgressBar x:Name="LoadingBar" Margin="193,32,0,0" Width="184" Height="6" Background="Black" BorderBrush="{x:Null}" Foreground="#FF2D73FF" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                        <TextBlock x:Name="textBlock1" HorizontalAlignment="Right" Margin="0,12,122,0" TextWrapping="Wrap" Text="Last Played" VerticalAlignment="Top" Height="22" Width="95" FontFamily="Tahoma" FontSize="16" Foreground="White"/>
-                        <Button x:Name="bt_Play" Content="Play" HorizontalAlignment="Left" Margin="10,12,0,12" Width="165" Background="#FF3EC139" Foreground="White" FontFamily="Tahoma" FontSize="24" Click="bt_Play_Click"/>
-                        <TextBlock x:Name="textBlock1_Copy" HorizontalAlignment="Left" Margin="552,13,0,0" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Top" Height="36" Width="78" FontFamily="Tahoma" FontSize="16" Foreground="White"/>
-                        <TextBlock x:Name="tb_LastPlayed" HorizontalAlignment="Left" Margin="433,36,0,0" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Top" Height="18" Width="78" FontFamily="Tahoma" Foreground="#FFB6BCD0" FontSize="14"/>
-                        <TextBlock x:Name="tb_PlayTime" HorizontalAlignment="Left" Margin="552,36,0,0" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Top" Height="36" Width="78" FontFamily="Tahoma" Foreground="#FFB6BCD0" FontSize="14"/>
-                        <TextBlock x:Name="tb_Downloading" HorizontalAlignment="Left" Margin="193,9,0,0" TextWrapping="Wrap" Text="Downloading" VerticalAlignment="Top" Height="22" Width="184" FontFamily="Tahoma" FontSize="16" Foreground="White"/>
-                        <TextBlock x:Name="tb_down_of_total" HorizontalAlignment="Left" Margin="193,42,0,0" TextWrapping="Wrap" Text="56.42 MB of 5.15 GB" VerticalAlignment="Top" Height="18" Width="184" FontFamily="Tahoma" Foreground="#FFB6BCD0" FontSize="14"/>
+                        <StackPanel Opacity="0.8" Background="#FF232932"/>
+                        <DockPanel>
+                            <Button x:Name="bt_Play" Content="Play" Margin="10,12,0,12" Width="182" Background="#FF3EC139" Foreground="White" FontFamily="Tahoma" FontSize="24" Click="bt_Play_Click" Height="40" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <ProgressBar x:Name="LoadingBar" Width="184" Height="6" Background="Black" BorderBrush="{x:Null}" Foreground="#FF2D73FF" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <TextBlock x:Name="tb_Downloading" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Downloading" VerticalAlignment="Top" Height="22" Width="184" FontFamily="Tahoma" FontSize="16" Foreground="White" Margin="-183,5,0,0" />
+                            <TextBlock x:Name="tb_down_of_total" HorizontalAlignment="Left" TextWrapping="Wrap" Text="56.42 MB of 5.15 GB" VerticalAlignment="Bottom" Height="18" Width="184" FontFamily="Tahoma" Foreground="#FFB6BCD0" FontSize="14" Margin="-183,0,0,8" />
+                            <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Last Played" VerticalAlignment="Top" Height="22" Width="95" FontFamily="Tahoma" FontSize="16" Foreground="White" Margin="15,10,0,0"/>
+                            <TextBlock x:Name="textBlock1_Copy" HorizontalAlignment="Left" Margin="5,10,0,0" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Top" Height="36" Width="78" FontFamily="Tahoma" FontSize="16" Foreground="White" />
+                            <TextBlock x:Name="tb_LastPlayed" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Bottom" Height="18" Width="78" FontFamily="Tahoma" Foreground="#FFB6BCD0" FontSize="14" Margin="-180,0,0,10" />
+                            <TextBlock x:Name="tb_PlayTime" TextWrapping="Wrap" Text="Play Time" Height="20" Width="78" FontFamily="Tahoma" Foreground="#FFB6BCD0" FontSize="14" Margin="-75,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+                            <TextBox x:Name="tb_scrie_aici" FontSize="15"/>
+                        </DockPanel>
                     </Grid>
 
                     <Grid Margin="0,390,0,0" Background="#FF232932" Opacity="0.95">
