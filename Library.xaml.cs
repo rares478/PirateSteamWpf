@@ -69,7 +69,6 @@ namespace WpfApp3
                     else
                         game.Last_Played = long.Parse(gameNode.SelectSingleNode("last_played").InnerText);
                     game.SteamAppid = int.Parse(gameNode.SelectSingleNode("steamappid").InnerText);
-                    game.Playtime = float.Parse(gameNode.SelectSingleNode("playtime").InnerText);
                     game.Installed = true;
                     games.Add(game);
                     lbLibrary.Items.Add(pathValue);
@@ -160,8 +159,6 @@ namespace WpfApp3
             double epochTime1 = game.Last_Played;
             DateTime dateTime1 = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochTime1);
             tb_LastPlayed.Text = dateTime1.ToString("MMM dd");
-
-            tb_PlayTime.Text = game.Playtime.ToString() + " hours";
 
             string url = "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=" + game.SteamAppid + "&format=json";
             HttpWebRequest request = WebRequest.CreateHttp(url);

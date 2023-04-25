@@ -182,7 +182,6 @@ namespace WpfApp3
                 XmlElement playtimeElement = xmlDoc.CreateElement("playtime");
                 playtimeElement.InnerText = "0.0";
                 gameElement.AppendChild(playtimeElement);
-                game.Playtime = 0.0f;
 
                 XmlNode gamesNode = xmlDoc.SelectSingleNode("/games");
                 gamesNode.AppendChild(gameElement);

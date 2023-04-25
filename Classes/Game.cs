@@ -16,7 +16,6 @@ namespace WpfApp3.Classes
         public long Date_Added { get; set; }
         public long Last_Played { get; set; }
         public int SteamAppid { get; set; }
-        public float Playtime { get; set; }
         public string Logo { get; set; }
         public bool Installed { get; set; }
 

@@ -29,53 +29,34 @@ namespace WpfApp3
         public Settings()
         {
             InitializeComponent();
-            if(System.IO.File.Exists(xml) == false)
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(xml);
+            XmlNodeList startupElements = doc.GetElementsByTagName("Startup");
+            foreach (XmlNode startupElement in startupElements)
             {
-                System.IO.File.Create(xml).Close();
-                XmlDocument doc = new XmlDocument();
-
-                XmlElement root = doc.CreateElement("Application");
-                doc.AppendChild(root);
-
-                XmlElement crackElement = doc.CreateElement("Crack");
-                crackElement.InnerText = "Goldberg";
-                root.AppendChild(crackElement);
-
-                XmlElement startupElement = doc.CreateElement("Startup");
-                startupElement.InnerText = "No";
-                root.AppendChild(startupElement);
-
-                doc.Save(xml);
+                if (startupElement.InnerText == "Yes")
+                    rb_StartAtStartup.IsChecked = true;
+                else
+                    rb_NoStartAtStartup.IsChecked = true;
             }
-            else
+            XmlNodeList crackElements = doc.GetElementsByTagName("Crack");
+            foreach (XmlNode crackElement in crackElements)
             {
-                XmlDocument doc = new XmlDocument();
-                doc.Load(xml);
-                XmlNodeList startupElements = doc.GetElementsByTagName("Startup");
-                foreach (XmlNode startupElement in startupElements)
+                switch (crackElement.InnerText)
                 {
-                    if (startupElement.InnerText == "Yes")
-                        rb_StartAtStartup.IsChecked = true;
-                    else 
-                        rb_NoStartAtStartup.IsChecked = true;
-                }
-                XmlNodeList crackElements = doc.GetElementsByTagName("Crack");
-                foreach (XmlNode crackElement in crackElements)
-                {
-                    switch (crackElement.InnerText)
-                    {
-                        case "CreamAPI":
-                            rb_CreamAPI.IsChecked = true;
-                            break;
-                        case "Goldberg":
-                            rb_Goldberg.IsChecked = true;
-                            break;
-                        case "Goldberg Experimental":
-                            rb_Goldberg_Experimental.IsChecked = true;
-                            break;
-                    }
+                    case "CreamAPI":
+                        rb_CreamAPI.IsChecked = true;
+                        break;
+                    case "Goldberg":
+                        rb_Goldberg.IsChecked = true;
+                        break;
+                    case "Goldberg Experimental":
+                        rb_Goldberg_Experimental.IsChecked = true;
+                        break;
                 }
             }
+
         }
 
         private void rb_CreamAPI_Checked(object sender, RoutedEventArgs e)

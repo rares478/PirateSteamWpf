@@ -5,11 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp3"
         mc:Ignorable="d"
-        Title="UpdateSteamCMD" Height="900" Width="1440">
-    <Grid>
-        <ProgressBar x:Name="LoadingBar" HorizontalAlignment="Left" Height="22" Margin="172,51,0,0" VerticalAlignment="Top" Width="1105"/>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Margin="172,116,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="728" Height="342"/>
-        <TextBox x:Name="tb_ids" HorizontalAlignment="Left" Margin="1089,117,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="137" Height="633"/>
+        Title="UpdateSteamCMD" Height="240" Width="900">
+    <Grid Background="#FF232932">
+        <ProgressBar x:Name="LoadingBar" HorizontalAlignment="Left" Height="22" Margin="59,90,0,0" VerticalAlignment="Top" Width="806" Background="#FF3D4858" Foreground="#FF2D73FF" BorderBrush="{x:Null}"/>
+        <TextBlock x:Name="tb_Task" HorizontalAlignment="Left" Margin="59,30,0,0" TextWrapping="Wrap" Text="Updating SteamCMD" VerticalAlignment="Top" Foreground="#FFC8C8C8" FontFamily="Tahoma" FontSize="16"/>
 
     </Grid>
 </Window>
