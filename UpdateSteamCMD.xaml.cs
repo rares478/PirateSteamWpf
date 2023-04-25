@@ -427,21 +427,22 @@ namespace WpfApp3
                 doc.Save(unlistedPath);
             }
 
-            StartMainWindow();
+            
             
         }
 
-        private void StartMainWindow()
-        {
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
-            
-        }
 
         List<int> ints = new List<int>();
 
         Dictionary<string, int> Games = new Dictionary<string, int>();
         Dictionary<string, int> Games_owned = new Dictionary<string, int>();
         Dictionary<string, int> Games_unlisted = new Dictionary<string, int>();
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+            this.Close();
+        }
     }
 }

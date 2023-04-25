@@ -40,8 +40,9 @@ namespace WpfApp3
 
             Directory.CreateDirectory(path);
             games.Clear();
+            games = UpdateSteamCMD.games;
 
-            if (System.IO.File.Exists(xml))
+            /*if (System.IO.File.Exists(xml))
             {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(xml);
@@ -73,11 +74,15 @@ namespace WpfApp3
                     games.Add(game);
                     lbLibrary.Items.Add(pathValue);
                 }
+            }*/
+            games = games.OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase).ToList();
+            lbLibrary.Items.Clear();
+            foreach(Game  game in games)
+            {
+                lbLibrary.Items.Add(game);
             }
-            lbLibrary.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
-            games = games.OrderBy(g => g.Title).ToList();
             lbLibrary.SelectedIndex = 0;
-            games[3].Installed = false;
+            lbLibrary.DisplayMemberPath = "Title";
         }
 
 
@@ -144,21 +149,26 @@ namespace WpfApp3
             Game game = games[lbLibrary.SelectedIndex];
 
             //setting up the page
-            BitmapImage bitmapImage = new BitmapImage();
-            bitmapImage.BeginInit();
-            bitmapImage.UriSource = new Uri(game.Background, UriKind.Absolute);
-            bitmapImage.EndInit();
-            img_Background.Source = bitmapImage;
 
-            BitmapImage bitmapImage2 = new BitmapImage();
-            bitmapImage2.BeginInit();
-            bitmapImage2.UriSource = new Uri(game.Logo, UriKind.Absolute);
-            bitmapImage2.EndInit();
-            img_Logo.Source = bitmapImage2;
+            if (game.Background != null)
+            {
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.UriSource = new Uri(game.Background, UriKind.Absolute);
+                bitmapImage.EndInit();
+                img_Background.Source = bitmapImage;
 
-            double epochTime1 = game.Last_Played;
-            DateTime dateTime1 = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochTime1);
-            tb_LastPlayed.Text = dateTime1.ToString("MMM dd");
+                BitmapImage bitmapImage2 = new BitmapImage();
+                bitmapImage2.BeginInit();
+                bitmapImage2.UriSource = new Uri(game.Logo, UriKind.Absolute);
+                bitmapImage2.EndInit();
+                img_Logo.Source = bitmapImage2;
+
+
+                double epochTime1 = game.Last_Played;
+                DateTime dateTime1 = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochTime1);
+                tb_LastPlayed.Text = dateTime1.ToString("MMM dd");
+            }
 
             string url = "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=" + game.SteamAppid + "&format=json";
             HttpWebRequest request = WebRequest.CreateHttp(url);

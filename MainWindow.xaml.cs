@@ -28,7 +28,6 @@ namespace WpfApp3
     {
 
         public static Classes.User User;
-        public static Process SteamCMD = new Process();
 
         
         public MainWindow()
