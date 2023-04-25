@@ -179,10 +179,6 @@ namespace WpfApp3
                 gameElement.AppendChild(steamAppIdElement);
                 game.SteamAppid = Convert.ToInt32(steamAppIdElement.InnerText);
 
-                XmlElement playtimeElement = xmlDoc.CreateElement("playtime");
-                playtimeElement.InnerText = "0.0";
-                gameElement.AppendChild(playtimeElement);
-
                 XmlNode gamesNode = xmlDoc.SelectSingleNode("/games");
                 gamesNode.AppendChild(gameElement);
 

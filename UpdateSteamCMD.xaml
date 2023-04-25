@@ -9,6 +9,9 @@
     <Grid Background="#FF232932">
         <ProgressBar x:Name="LoadingBar" HorizontalAlignment="Left" Height="22" Margin="59,90,0,0" VerticalAlignment="Top" Width="806" Background="#FF3D4858" Foreground="#FF2D73FF" BorderBrush="{x:Null}"/>
         <TextBlock x:Name="tb_Task" HorizontalAlignment="Left" Margin="59,30,0,0" TextWrapping="Wrap" Text="Updating SteamCMD" VerticalAlignment="Top" Foreground="#FFC8C8C8" FontFamily="Tahoma" FontSize="16"/>
+        <TextBox x:Name="tb_un" HorizontalAlignment="Left" Margin="82,163,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="tb_un_Copy" HorizontalAlignment="Left" Margin="295,163,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="tb_care_ii" HorizontalAlignment="Left" Margin="482,163,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
 
     </Grid>
 </Window>

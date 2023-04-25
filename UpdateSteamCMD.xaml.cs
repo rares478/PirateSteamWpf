@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Xml;
 using WpfApp3.Classes;
+using System.Xml.Linq;
 
 namespace WpfApp3
 {
@@ -130,6 +131,7 @@ namespace WpfApp3
                 WebClient client = new WebClient();
                 string downloadUrl = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
                 client.DownloadFile(downloadUrl, "steamcmd.zip");
+                client.Dispose();
                 ZipFile.ExtractToDirectory("steamcmd.zip", AppDomain.CurrentDomain.BaseDirectory + "\\Steam");
             }
             string da = "D:\\Codeblocks\\coduri\\Visual Studio\\WpfApp3\\bin\\Debug\\net7.0-windows\\Steam\\RTconsole.exe";
@@ -216,8 +218,9 @@ namespace WpfApp3
                                     Games.Add(name, appId);
                                 }
                             }
-                            Process_Games();
                             done_games = true;
+                            Process_Games();
+                            
                         }
                     }
                 }
@@ -254,9 +257,13 @@ namespace WpfApp3
                 if (match.Success)
                 {
                     string nameValue = match.Groups[1].Value;
-                    if (!Games_owned.ContainsKey(nameValue))
+                    if (Games_owned.ContainsKey(nameValue) == false)
                     {
                         Games_owned.Add(nameValue, appid);
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            tb_un.Text = (Convert.ToInt32(tb_un.Text) + 1).ToString();
+                        });
                         Games_unlisted.Add(nameValue, appid);
                     }
                 }
@@ -265,7 +272,7 @@ namespace WpfApp3
         }
 
 
-        private void Process_Games()
+        private async void Process_Games()
         {
             string file_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Steam", "output.txt");
             this.Dispatcher.Invoke(() =>
@@ -303,19 +310,58 @@ namespace WpfApp3
                         {
                             if (int.TryParse(appId, out int id))
                             {
-                                if(Games.ContainsValue(id))
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    tb_care_ii.Text = id.ToString();
+                                });
+                                if (Games.ContainsValue(id))
                                 {
                                     string targetKey = Games.FirstOrDefault(x => x.Value == id).Key;
                                     if (!Games_owned.ContainsKey(targetKey))
                                     {
                                         Games_owned.Add(targetKey, id);
+                                        this.Dispatcher.Invoke(() =>
+                                        {
+                                            tb_un_Copy.Text = (Convert.ToInt32(tb_un_Copy.Text) + 1).ToString();
+                                        });
                                     }
-                                    
                                 }
                                 else
                                 {
-                                    if(unlisted == false)
-                                        Process_Game(id);
+
+                                    WebRequest request2 = WebRequest.Create("https://store.steampowered.com/api/libraryappdetails/?appid=" + id.ToString());
+                                    HttpWebResponse responseName = (HttpWebResponse)request2.GetResponse();
+                                    Task.Delay(200);
+                                    if (responseName.StatusDescription == "OK")
+                                    {
+                                        Stream datastream2 = responseName.GetResponseStream();
+                                        StreamReader reader2 = new StreamReader(datastream2);
+                                        string response3 = reader2.ReadToEnd();
+
+                                        JObject data = JObject.Parse(response3);
+                                        string success = (string)data["status"];
+                                        if (success == "1")
+                                        {
+                                            string name = (string)data["name"];
+                                            if (!Games_owned.ContainsKey(name))
+                                            {
+                                                Games_owned.Add(name, id);
+                                                this.Dispatcher.Invoke(() =>
+                                                {
+                                                    tb_un_Copy.Text = (Convert.ToInt32(tb_un_Copy.Text) + 1).ToString();
+                                                });
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (unlisted == true)
+                                            {
+                                                ints.Add(id);
+                                            }
+                                        }
+                                    }
+
+                                    
                                 }
 
                             }
@@ -326,15 +372,20 @@ namespace WpfApp3
             }
             Games.Clear();
 
-            if(unlisted == true)
+
+            if (unlisted == true)
             {
-                foreach ( Game game in games)
+                foreach (int id in ints)
                 {
-                    if(Games_owned.ContainsValue(game.SteamAppid))
-                    {
-                        game.Title = game.Title + " Cracked";
-                        MessageBox.Show(game.Title);
-                    }
+                    await Process_Game(id);
+                }
+            }
+
+            foreach (Game game in games)
+            {
+                if (Games_owned.ContainsValue(game.SteamAppid))
+                {
+                    game.Title = game.Title + " Cracked";
                 }
             }
             foreach (KeyValuePair<string, int> game in Games_owned)
@@ -346,8 +397,48 @@ namespace WpfApp3
                 games.Add(game_to_add);
             }
             Games_owned.Clear();
+
+            if(Games_unlisted.Count >0)
+            {
+                string unlistedPath = path + "\\Games_unlisted.xml";
+
+
+                XmlDocument doc = new XmlDocument();
+                XmlElement root = doc.CreateElement("games");
+                doc.AppendChild(root);
+
+                
+                foreach(KeyValuePair<string, int> game in Games_unlisted)
+                {
+                    XmlElement gameElement = doc.CreateElement("game");
+                    root.AppendChild(gameElement);
+
+                    // Create the title element for the game
+                    XmlElement titleElement = doc.CreateElement("title");
+                    titleElement.InnerText = game.Key;
+                    gameElement.AppendChild(titleElement);
+
+                    // Create the steamappid element for the game
+                    XmlElement steamAppIdElement = doc.CreateElement("steamappid");
+                    steamAppIdElement.InnerText = game.Value.ToString();
+                    gameElement.AppendChild(steamAppIdElement);
+                }
+                // Save the XML document
+                doc.Save(unlistedPath);
+            }
+
+            StartMainWindow();
             
         }
+
+        private void StartMainWindow()
+        {
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+            
+        }
+
+        List<int> ints = new List<int>();
 
         Dictionary<string, int> Games = new Dictionary<string, int>();
         Dictionary<string, int> Games_owned = new Dictionary<string, int>();
