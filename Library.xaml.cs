@@ -33,6 +33,7 @@ namespace WpfApp3
         private static string xml = path + "\\Games.xml";
         public static List<PatchNote> notes = new List<PatchNote>();
         public static List<Game> games = new List<Game>();
+        public static List<Game> apps = new List<Game>();
 
         public Library()
         {
@@ -40,47 +41,35 @@ namespace WpfApp3
 
             Directory.CreateDirectory(path);
             games.Clear();
-            games = UpdateSteamCMD.games;
-
-            /*if (System.IO.File.Exists(xml))
-            {
-                XmlDocument doc = new XmlDocument();
-                doc.Load(xml);
-
-                XmlNodeList gameNodes = doc.SelectNodes("/games/game");
-
-                foreach (XmlNode gameNode in gameNodes)
-                {
-                    XmlNode pathNode = gameNode.SelectSingleNode("title");
-                    string pathValue = pathNode.InnerText.Trim();
-
-
-                    Game game = new Game();
-                    game.Title = pathValue;
-                    game.Path = gameNode.SelectSingleNode("path").InnerText;
-                    game.Path_Directory = gameNode.SelectSingleNode("path_directory").InnerText;
-                    game.Type = gameNode.SelectSingleNode("type").InnerText;
-                    game.Background = gameNode.SelectSingleNode("background").InnerText;
-                    game.Logo = gameNode.SelectSingleNode("logo").InnerText;
-                    game.Date_Added = long.Parse(gameNode.SelectSingleNode("date").InnerText);
-                    if (gameNode.SelectSingleNode("last_played").InnerText == "")
-                    {
-                        game.Last_Played = 0;
-                    }
-                    else
-                        game.Last_Played = long.Parse(gameNode.SelectSingleNode("last_played").InnerText);
-                    game.SteamAppid = int.Parse(gameNode.SelectSingleNode("steamappid").InnerText);
-                    game.Installed = true;
-                    games.Add(game);
-                    lbLibrary.Items.Add(pathValue);
-                }
-            }*/
+            games = UpdateSteamCMD.Items;
             games = games.OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase).ToList();
             lbLibrary.Items.Clear();
+
+            List<Game> remove = new List<Game>();
             foreach(Game  game in games)
             {
-                lbLibrary.Items.Add(game);
+                if (game.Type == "App")
+                    apps.Add(game);
+                else
+                {
+                    if(game.Title != null)
+                        lbLibrary.Items.Add(game);
+                    else
+                    {
+                        remove.Add(game);
+                    }
+                }
+                    
             }
+            foreach(Game game in apps)
+            {
+                games.Remove(game);
+            }
+            foreach(Game game in remove)
+            {
+                games.Remove(game);
+            }
+            remove.Clear();
             lbLibrary.SelectedIndex = 0;
             lbLibrary.DisplayMemberPath = "Title";
         }
@@ -149,6 +138,8 @@ namespace WpfApp3
             Game game = games[lbLibrary.SelectedIndex];
 
             //setting up the page
+
+            tb_dlc.Text = game.DLCs.Count.ToString();
 
             if (game.Background != null)
             {

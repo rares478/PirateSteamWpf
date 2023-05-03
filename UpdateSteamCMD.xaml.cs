@@ -13,6 +13,9 @@ using System.Linq;
 using System.Xml;
 using WpfApp3.Classes;
 using System.Xml.Linq;
+using Newtonsoft.Json;
+using SteamAppInfoParser;
+using Octokit;
 
 namespace WpfApp3
 {
@@ -23,14 +26,15 @@ namespace WpfApp3
     {
         private bool unlisted = false;
         private static string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PirateSteam");
-        public static List<Game> games = new List<Game>();
+        public static List<Game> Items = new List<Game>();
+
 
 
         public UpdateSteamCMD()
         {
             Directory.CreateDirectory(path);
             string GamesXml = path + "\\Games.xml";
-            if (File.Exists(GamesXml))
+            /*if (File.Exists(GamesXml))
             {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(GamesXml);
@@ -59,64 +63,8 @@ namespace WpfApp3
                     game.Installed = true;
                     games.Add(game);
                 }
-            }
+            }*/
 
-            string settings_xml = path + "\\settings.xml";
-            if (File.Exists(settings_xml) == false)
-            {
-                File.Create(settings_xml).Close();
-                XmlDocument doc = new XmlDocument();
-
-                XmlElement root = doc.CreateElement("Application");
-                doc.AppendChild(root);
-
-                XmlElement crackElement = doc.CreateElement("Crack");
-                crackElement.InnerText = "Goldberg";
-                root.AppendChild(crackElement);
-
-                XmlElement startupElement = doc.CreateElement("Startup");
-                startupElement.InnerText = "No";
-                root.AppendChild(startupElement);
-
-                XmlElement unlistedElement = doc.CreateElement("Unlisted");
-                unlistedElement.InnerText = "false";
-                root.AppendChild(unlistedElement);
-
-                doc.Save(settings_xml);
-            }
-
-
-            XmlDocument docsettings = new XmlDocument();
-            docsettings.Load(settings_xml);
-            XmlNodeList UnlistedElements = docsettings.GetElementsByTagName("Unlisted");
-            foreach (XmlNode UnlistedElement in UnlistedElements)
-            {
-                if (UnlistedElement.InnerText == "true")
-                {
-                    if (File.Exists(path + "\\Games_unlisted.xml") == false)
-                    {
-                        unlisted = false;
-                    }
-                    else
-                    { 
-                        unlisted = true;
-                        XmlDocument unlistedGamesDoc = new XmlDocument();
-                        docsettings.Load(path + "\\Games_unlisted.xml");
-                        XmlNodeList gameNodes = docsettings.SelectNodes("/games/game");
-                        foreach (XmlNode gameNode in gameNodes)
-                        {
-                            XmlNode nameNode = gameNode.SelectSingleNode("title");
-                            string name = nameNode.InnerText.Trim();
-
-
-                            XmlNode appidNode = gameNode.SelectSingleNode("steamappid");
-                            int appid = Convert.ToInt32(appidNode.InnerText.Trim());
-
-                            Games_unlisted.Add(name, appid);
-                        }
-                    }
-                }
-            }
 
             InitializeComponent();
             AsyncUpdateSteamCMD();
@@ -157,9 +105,9 @@ namespace WpfApp3
 
 
         bool uptodate = false;
-        bool done_games = false;
+        bool done_games= false;
 
-        private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        private async void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             string output = e.Data;
             if (output != null)
@@ -198,245 +146,174 @@ namespace WpfApp3
                 {
                     if (done_games == false)
                     {
-                        WebRequest request2 = WebRequest.Create("http://api.steampowered.com/ISteamApps/GetAppList/v0001");
-                        HttpWebResponse responseName = (HttpWebResponse)request2.GetResponse();
-                        Task.Delay(100);
-                        if (responseName.StatusDescription == "OK")
+                        if(await Process_Games())
                         {
-                            Stream datastream2 = responseName.GetResponseStream();
-                            StreamReader reader2 = new StreamReader(datastream2);
-                            string response3 = reader2.ReadToEnd();
-
-                            JObject data = JObject.Parse(response3);
-                            JArray apps = data["applist"]["apps"]["app"] as JArray;
-                            foreach (JObject app in apps)
-                            {
-                                string name = app["name"].ToString();
-                                int appId = Convert.ToInt32(app["appid"].ToString());
-                                if (!Games.ContainsKey(name))
-                                {
-                                    Games.Add(name, appId);
-                                }
-                            }
                             done_games = true;
-                            Process_Games();
-                            
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                LoadingBar.Value = 100;
+                            });
                         }
                     }
                 }
             }
         }
 
-        private async Task Process_Game(int appid)
+
+        private async Task<bool> Process_Games()
         {
-            Process process = new Process();
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            string appinfoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Steam\\appcache", "appinfo.vdf");
+            var appInfo = new AppInfo();
+            appInfo.Read(appinfoPath);
+
+            foreach (var app in appInfo.Apps)
             {
-                FileName = "D:\\Codeblocks\\coduri\\Visual Studio\\WpfApp3\\bin\\Debug\\net7.0-windows\\Steam\\script_info.bat",
-                WorkingDirectory = "D:\\Codeblocks\\coduri\\Visual Studio\\WpfApp3\\bin\\Debug\\net7.0-windows\\Steam",
-                CreateNoWindow = true,
-                Arguments = appid.ToString()
-            };
+                Game game = new Game();
 
-            process.StartInfo = startInfo;
-            process.Start();
-            await process.WaitForExitAsync();
-
-            while ((Process.GetProcessesByName("cmd").Length > 0) == true)
-            {
-
-            }
-
-            string info_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Steam", "app_info.txt");
-            using (StreamReader sr = new StreamReader(info_path))
-            {
-                string fileContents = sr.ReadToEnd();
-                string pattern = "\"name\"\\s+\"([^\"]+)\"";
-                Match match = Regex.Match(fileContents, pattern);
-
-                if (match.Success)
+                var common = app.Data.Children.FirstOrDefault(c => c.Name == "common");
+                if (common != null)
                 {
-                    string nameValue = match.Groups[1].Value;
-                    if (Games_owned.ContainsKey(nameValue) == false)
+                    var name = common["name"].ToString().Trim();
+                    var type = common["type"].ToString().Trim();
+                    var appid = Convert.ToInt32(common["gameid"].ToString().Trim());
+                    if (appid == 61800 || appid == 61810 || appid== 61820 || appid == 61830)
                     {
-                        Games_owned.Add(nameValue, appid);
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            tb_un.Text = (Convert.ToInt32(tb_un.Text) + 1).ToString();
-                        });
-                        Games_unlisted.Add(nameValue, appid);
+                        continue;
                     }
-                }
-                sr.Close();
-            }
-        }
 
-
-        private async void Process_Games()
-        {
-            string file_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Steam", "output.txt");
-            this.Dispatcher.Invoke(() =>
-            {
-                tb_Task.Text = "Loading your Steam library";
-            });
-            
-            using (StreamReader sr = new StreamReader(file_path))
-            {
-                string fileContents = sr.ReadToEnd();
-                Regex regex_state = new Regex(@"- State\s+:\s+([A-Za-z]+)");
-                Regex regex_apps = new Regex(@"- Apps\s*:\s*([\d,\s]+),\s*\(\d+\s*in total\)");
-                MatchCollection matches_apps = regex_apps.Matches(fileContents);
-                MatchCollection matches_states = regex_state.Matches(fileContents);
-
-
-                for (int i = 1; i < matches_apps.Count; i++)
-                {
-                    
-                    Match stateMatch = matches_states[i];
-                    Match appMatch = matches_apps[i];
-
-                    this.Dispatcher.Invoke(() =>
+                    if (type == "Game" || type == "game" || type == "Application")
                     {
-                        double percentage;
-                        percentage = (double)((double)i / (double)matches_apps.Count *100);
-                        LoadingBar.Value = percentage;
-                    });
+                        game.Title = name;
+                        game.SteamAppid = appid;
 
-                    if (stateMatch.Groups[1].Value.Trim().ToLower() == "active")
-                    {
-                        string appIdStr = appMatch.Groups[1].Value.Replace(",", "").Trim();
-                        string[] appIdsArray = appIdStr.Split(' ');
-                        foreach (string appId in appIdsArray)
+                        if (type == "Application")
+                            game.Type = "App";
+                        else game.Type = "Game";
+
+                        var extended = app.Data.Children.FirstOrDefault(c => c.Name == "extended");
+
+                        if (extended != null)
                         {
-                            if (int.TryParse(appId, out int id))
+                            if (extended["listofdlc"] != null)
                             {
-                                this.Dispatcher.Invoke(() =>
+                                var list = extended["listofdlc"].ToString();
+                                string[] dlcs = list.Split(',');
+
+                                List<DLC> DLCs = new List<DLC>();
+                                foreach (var dlc in dlcs)
                                 {
-                                    tb_care_ii.Text = id.ToString();
-                                });
-                                if (Games.ContainsValue(id))
-                                {
-                                    string targetKey = Games.FirstOrDefault(x => x.Value == id).Key;
-                                    if (!Games_owned.ContainsKey(targetKey))
-                                    {
-                                        Games_owned.Add(targetKey, id);
-                                        this.Dispatcher.Invoke(() =>
-                                        {
-                                            tb_un_Copy.Text = (Convert.ToInt32(tb_un_Copy.Text) + 1).ToString();
-                                        });
-                                    }
+                                    int id;
+                                    int.TryParse(dlc, out id);
+                                    DLC dlc2 = new DLC { Id = id, Name = "" };
+                                    DLCs.Add(dlc2);
                                 }
-                                else
+
+                                game.DLCs = DLCs;
+                            }
+                        }
+
+
+                        var depots = app.Data.Children.FirstOrDefault(c => c.Name == "depots");
+
+                        double size = 0;
+
+                        if (depots != null)
+                        {
+                            foreach (var depot in depots.Children)
+                            {
+                                if (depot.Name == "1659421")
                                 {
+                                    Console.WriteLine("da");
+                                }
 
-                                    WebRequest request2 = WebRequest.Create("https://store.steampowered.com/api/libraryappdetails/?appid=" + id.ToString());
-                                    HttpWebResponse responseName = (HttpWebResponse)request2.GetResponse();
-                                    Task.Delay(200);
-                                    if (responseName.StatusDescription == "OK")
+                                if (depot.Children.Count() > 0)
+                                {
+                                    if (depot.Children.FirstOrDefault(a => a.Name == "depotfromapp") != default || depot.Children.FirstOrDefault(a => a.Name == "sharedinstall") != default)
+                                        continue;
+
+                                    if (depot.Children.FirstOrDefault(a => a.Name == "config") != default)
                                     {
-                                        Stream datastream2 = responseName.GetResponseStream();
-                                        StreamReader reader2 = new StreamReader(datastream2);
-                                        string response3 = reader2.ReadToEnd();
+                                        var config = depot.Children.FirstOrDefault(a => a.Name == "config");
 
-                                        JObject data = JObject.Parse(response3);
-                                        string success = (string)data["status"];
-                                        if (success == "1")
+                                        if (config.Children.Count() > 0)
                                         {
-                                            string name = (string)data["name"];
-                                            if (!Games_owned.ContainsKey(name))
+                                            if (config.Children.FirstOrDefault(a => a.Name == "oslist") != default)
                                             {
-                                                Games_owned.Add(name, id);
-                                                this.Dispatcher.Invoke(() =>
-                                                {
-                                                    tb_un_Copy.Text = (Convert.ToInt32(tb_un_Copy.Text) + 1).ToString();
-                                                });
+                                                if (config["oslist"].ToString() == "macos" || config["oslist"].ToString() == "linux" || config["oslist"].ToString() == "linux,macos" || config["oslist"].ToString() == "macos,linux")
+                                                    continue;
                                             }
-                                        }
-                                        else
-                                        {
-                                            if (unlisted == true)
+                                            if (config.Children.FirstOrDefault(a => a.Name == "language") != default)
                                             {
-                                                ints.Add(id);
+                                                if (config["language"].ToString() != "english" && config["language"].ToString() != "")
+                                                    continue;
                                             }
                                         }
                                     }
 
-                                    
+                                    if (depot.Children.FirstOrDefault(a => a.Name == "maxsize") != default)
+                                    {
+                                        size = size + Convert.ToDouble(depot["maxsize"].ToString());
+                                    }
+                                    else if (depot.Children.FirstOrDefault(a => a.Name == "manifests") != default)
+                                    {
+                                        var manifest = depot.Children.FirstOrDefault(a => a.Name == "manifests");
+
+                                        var publicDep = manifest.Children.FirstOrDefault(a => a.Name == "public");
+                                        if (publicDep != null)
+                                        {
+                                            var sizeDep = publicDep.Children.FirstOrDefault(a => a.Name == "size");
+                                            if (sizeDep != null)
+                                            {
+                                                size = size + Convert.ToDouble(depot["manifests"]["public"]["size"].ToString());
+                                            }
+                                        }
+                                    }
                                 }
 
                             }
                         }
+
+                        game.Size = size;
+
+                        Items.Add(game);
+
+
+
+                    }
+
+                    else if (type == "DLC")
+                    {
+                        DLC dlc = new DLC();
+                        dlc.Id = appid;
+                        dlc.Name = name;
+
+                        int parentid = Convert.ToInt32(common["parent"].ToString());
+
+                        Game game1 = Items.FirstOrDefault(a => a.SteamAppid == parentid);
+                        if (game1 == null)
+                        {
+                            game1 = new Game { SteamAppid = parentid, DLCs = new List<DLC>() };
+                            game1.DLCs.Add(dlc);
+                            Items.Add(game1);
+                        }
+
+                        DLC existingDLC = game1.DLCs.FirstOrDefault(a => a.Id == dlc.Id);
+                        if (existingDLC != default)
+                        {
+                            existingDLC.Name = name;
+
+                        }
+                        else
+                        {
+                            game1.DLCs.Add(dlc);
+                        }
                     }
                 }
-                sr.Close();
-            }
-            Games.Clear();
 
-
-            if (unlisted == true)
-            {
-                foreach (int id in ints)
-                {
-                    await Process_Game(id);
-                }
             }
 
-            foreach (Game game in games)
-            {
-                if (Games_owned.ContainsValue(game.SteamAppid))
-                {
-                    game.Title = game.Title + " Cracked";
-                }
-            }
-            foreach (KeyValuePair<string, int> game in Games_owned)
-            {
-                Game game_to_add = new Game();
-                game_to_add.Title = game.Key;
-                game_to_add.SteamAppid = game.Value;
-
-                games.Add(game_to_add);
-            }
-            Games_owned.Clear();
-
-            if(Games_unlisted.Count >0)
-            {
-                string unlistedPath = path + "\\Games_unlisted.xml";
-
-
-                XmlDocument doc = new XmlDocument();
-                XmlElement root = doc.CreateElement("games");
-                doc.AppendChild(root);
-
-                
-                foreach(KeyValuePair<string, int> game in Games_unlisted)
-                {
-                    XmlElement gameElement = doc.CreateElement("game");
-                    root.AppendChild(gameElement);
-
-                    // Create the title element for the game
-                    XmlElement titleElement = doc.CreateElement("title");
-                    titleElement.InnerText = game.Key;
-                    gameElement.AppendChild(titleElement);
-
-                    // Create the steamappid element for the game
-                    XmlElement steamAppIdElement = doc.CreateElement("steamappid");
-                    steamAppIdElement.InnerText = game.Value.ToString();
-                    gameElement.AppendChild(steamAppIdElement);
-                }
-                // Save the XML document
-                doc.Save(unlistedPath);
-            }
-
-            
-            
+            return true;
         }
-
-
-        List<int> ints = new List<int>();
-
-        Dictionary<string, int> Games = new Dictionary<string, int>();
-        Dictionary<string, int> Games_owned = new Dictionary<string, int>();
-        Dictionary<string, int> Games_unlisted = new Dictionary<string, int>();
 
         private void button_Click(object sender, RoutedEventArgs e)
         {

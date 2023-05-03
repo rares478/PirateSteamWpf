@@ -18,6 +18,15 @@ namespace WpfApp3.Classes
         public int SteamAppid { get; set; }
         public string Logo { get; set; }
         public bool Installed { get; set; }
+        public List<DLC> DLCs = new List<DLC>() { };
+        public double Size { get; set; }
 
     }
+
+    public class DLC
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
 }

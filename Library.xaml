@@ -125,6 +125,7 @@
                             <TextBlock x:Name="tb_LastPlayed" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Play Time" VerticalAlignment="Bottom" Height="18" Width="78" FontFamily="Tahoma" Foreground="#FFB6BCD0" FontSize="14" Margin="-180,0,0,10" />
                             <TextBlock x:Name="tb_PlayTime" TextWrapping="Wrap" Text="Play Time" Height="20" Width="78" FontFamily="Tahoma" Foreground="#FFB6BCD0" FontSize="14" Margin="-75,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
                             <TextBox x:Name="tb_scrie_aici" FontSize="15"/>
+                            <TextBox x:Name="tb_dlc" TextWrapping="Wrap" Text="TextBox" Width="100"/>
                         </DockPanel>
                     </Grid>
 
