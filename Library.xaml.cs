@@ -21,9 +21,8 @@ using System.Windows.Navigation;
 using System.Xml.Linq;
 using System.Xml;
 using WpfApp3.Classes;
-using SteamAppInfoParser;
 using System.Text.RegularExpressions;
-using System.Threading;
+
 
 namespace WpfApp3
 {
@@ -50,26 +49,26 @@ namespace WpfApp3
             lbLibrary.Items.Clear();
 
             List<Game> remove = new List<Game>();
-            foreach(Game  game in games)
+            foreach (Game game in games)
             {
                 if (game.Type == "App")
                     apps.Add(game);
                 else
                 {
-                    if(game.Title != null)
+                    if (game.Title != null)
                         lbLibrary.Items.Add(game);
                     else
                     {
                         remove.Add(game);
                     }
                 }
-                    
+
             }
-            foreach(Game game in apps)
+            foreach (Game game in apps)
             {
                 games.Remove(game);
             }
-            foreach(Game game in remove)
+            foreach (Game game in remove)
             {
                 games.Remove(game);
             }
@@ -165,16 +164,35 @@ namespace WpfApp3
             }
 
 
-            if(game.Installed == 0)
-            {
-                bt_Play.Content = "Install";
-                bt_Play.Background = new SolidColorBrush(Color.FromArgb(100, 49, 132, 226));
 
-            }
-            else if(game.Installed == 2)
+            switch (game.Installed)
             {
-                bt_Play.Content = "Pause";
+                case 0:
+                    {
+                        bt_Play.Content = "Install";
+                        bt_Play.Background = new SolidColorBrush(Color.FromArgb(100, 49, 132, 226));
+                        break;
+                    }
+                case 1:
+                    {
+                        bt_Play.Content = "Play";
+                        bt_Play.Background = new SolidColorBrush(Color.FromRgb(112, 214, 30));
+                        break;
+                    }
+                case 2:
+                    {
+                        bt_Play.Content = "Pause";
+                        bt_Play.Background = new SolidColorBrush(Color.FromArgb(100, 49, 132, 226));
+                        break;
+                    }
+                case 3:
+                    {
+                        bt_Play.Content = "Resume";
+                        bt_Play.Background = new SolidColorBrush(Color.FromArgb(100, 49, 132, 226));
+                        break;
+                    }
             }
+
 
             string url = "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=" + game.SteamAppid + "&format=json";
             HttpWebRequest request = WebRequest.CreateHttp(url);
@@ -220,41 +238,49 @@ namespace WpfApp3
                 }
             }
             NotesList.ItemsSource = notes;
-
         }
 
         private async void bt_Play_Click(object sender, RoutedEventArgs e)
         {
             Game game = games[lbLibrary.SelectedIndex];
-            if (bt_Play.Content == "Play")
+            switch (game.Installed)
             {
+                case 0:
+                    {
+                        Install install = new Install(game, this);
+                        install.ShowDialog();
+                        break;
+                    }
+                case 1:
+                    {
+                        string dir = Directory.GetCurrentDirectory();
+                        Directory.SetCurrentDirectory(Directory.GetParent(game.Path).ToString());
+                        Process.Start(game.Path);
+                        Directory.SetCurrentDirectory(dir);
+                        break;
+                    }
+                case 2:
+                    {
+                        DownloadProcess.Kill();
+                        DownloadProcess.Dispose();
 
-                string dir = Directory.GetCurrentDirectory();
-                Directory.SetCurrentDirectory(Directory.GetParent(game.Path).ToString());
-                Process.Start(game.Path);
-                Directory.SetCurrentDirectory(dir);
+                        Process[] processes = Process.GetProcessesByName("steamcmd");
+                        foreach (Process process in processes)
+                        {
+                            process.Kill();
+                            process.WaitForExit();
+                        }
+                        game.Installed = 3;
+                        bt_Play.Content = "Resume";
+                        break;
+                    }
+                case 3:
+                    {
+                        downloadGame(game, "", game.Size);
+                        break;
+                    }
             }
-            else if(bt_Play.Content == "Install")
-            {
-                Install install = new Install(game,this);
-                install.ShowDialog();
 
-                
-            }
-            else
-            {
-                DownloadProcess.Kill();
-                DownloadProcess.Dispose();
-
-                Process[] processes = Process.GetProcessesByName("steamcmd");
-                foreach (Process process in processes)
-                {
-                    process.Kill();
-                    process.WaitForExit(); 
-                }
-
-
-            }
         }
 
         private void bt_ShortcutMaker(object sender, RoutedEventArgs e)
@@ -321,9 +347,15 @@ namespace WpfApp3
 
 
         private Process DownloadProcess;
+        private int downloading;
+        private string DownloadPath = null;
 
-        public async Task<bool> downloadGame(Game game, string path ,double size)
+        public async Task<bool> downloadGame(Game game, string path, double size)
         {
+
+            if (DownloadPath == null)
+                DownloadPath = path;
+
             LoadingBar.Visibility = Visibility.Visible;
             tb_Downloading.Visibility = Visibility.Visible;
             tb_down_of_total.Visibility = Visibility.Visible;
@@ -332,6 +364,8 @@ namespace WpfApp3
             bt_Play.Content = "Pause";
             game.Installed = 2;
             this.size = size;
+
+            downloading = lbLibrary.Items.IndexOf(game);
 
 
             string steamcmdPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Steam", "steamcmd.exe");
@@ -345,7 +379,7 @@ namespace WpfApp3
                 RedirectStandardError = true,
                 CreateNoWindow = true,
                 StandardOutputEncoding = Encoding.UTF8,
-                Arguments = steamcmdPath + $" +force_install_dir {path} +login rares478 +app_update {game.SteamAppid} validate"
+                Arguments = steamcmdPath + $" +force_install_dir {DownloadPath} +login rares478 +app_update {game.SteamAppid} validate +quit"
             };
 
             DownloadProcess = new Process();
@@ -360,7 +394,7 @@ namespace WpfApp3
         private void UpdateLoadingBar(string percentageString)
         {
             float percentage;
-            
+
             if (float.TryParse(percentageString.TrimEnd('%'), out percentage))
             {
                 Dispatcher.Invoke(() =>
@@ -373,6 +407,7 @@ namespace WpfApp3
 
         private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
+
             if (!string.IsNullOrEmpty(e.Data))
             {
                 string outputText = e.Data;
@@ -382,17 +417,84 @@ namespace WpfApp3
                     tb_scrie_aici.AppendText(outputText + Environment.NewLine);
                 });
 
-                int percentageIndex = outputText.LastIndexOf('%');
-                Match match = Regex.Match(outputText, @"progress: (\d+\.\d+)");
-                if(match.Success) {
-                    {
-                        string progressstr = match.Groups[1].Value;
-                        double progress = double.Parse(progressstr);
+                if(outputText.Contains("Success! App"))
+                {
+                    
+                    games[downloading].Installed = 1;
+                    games[downloading].Path_Directory = DownloadPath;
 
-                        UpdateLoadingBar(progressstr);
+                    string temp = games[downloading].Path;
+                    games[downloading].Path = Path.Combine(DownloadPath, games[downloading].Path);
+
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        tb_Downloading.Visibility = Visibility.Collapsed;
+                        tb_down_of_total.Visibility = Visibility.Collapsed;
+                        tb_Size.Visibility = Visibility.Collapsed;
+                        tb_space_req.Visibility = Visibility.Collapsed;
+                        LoadingBar.Visibility = Visibility.Collapsed;
+                        bt_Play.Content = "Play";
+                        bt_Play.Background = new SolidColorBrush(Color.FromRgb(112, 214, 30));
+                    });
+
+
+                }
+                else
+                {
+
+                    if (outputText.Contains("verifying"))
+                    {
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            tb_Downloading.Text = "Validating";
+                        });
+                    }
+
+                    int percentageIndex = outputText.LastIndexOf('%');
+                    Match match = Regex.Match(outputText, @"progress: (\d+\.\d+)");
+                    if (match.Success)
+                    {
+                        {
+                            string progressstr = match.Groups[1].Value;
+                            double progress = double.Parse(progressstr);
+
+                            UpdateLoadingBar(progressstr);
+                        }
                     }
                 }
             }
         }
+
+
+        private void bt_Play_Down_Click(object sender, RoutedEventArgs e)
+        {
+            ppPlay.IsOpen = true;
+        }
+
+        private void bt_Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            if (games[lbLibrary.SelectedIndex].Installed == 2 || games[lbLibrary.SelectedIndex].Installed == 3)
+            {
+                DownloadProcess.Kill();
+                DownloadProcess.Dispose();
+
+                Process[] processes = Process.GetProcessesByName("steamcmd");
+                foreach (Process process in processes)
+                {
+                    process.Kill();
+                    process.WaitForExit();
+                }
+                Directory.Delete(DownloadPath, true);
+                games[lbLibrary.SelectedIndex].Installed = 0;
+                bt_Play.Content = "Install";
+            }
+        }
+
+        private void bt_Open_Folder_Click(object sender, RoutedEventArgs e)
+        {
+            Game game = games[lbLibrary.SelectedIndex];
+            Process.Start("explorer.exe", DownloadPath);
+        }
+
     }
 }

@@ -221,6 +221,35 @@ namespace WpfApp3
                             }
                         }
 
+                        var config = app.Data.Children.FirstOrDefault(c => c.Name == "config");
+                        if(config != null)
+                        {
+                            var launch = config.Children.FirstOrDefault(a => a.Name == "launch");
+
+                            if (launch != null)
+                            {
+                                foreach (var launchthing in launch)
+                                {
+                                    var configlaunch = launchthing.Children.FirstOrDefault(a=>a.Name == "config");
+                                    if(configlaunch != null)
+                                    {
+                                        var oslist = configlaunch.Children.FirstOrDefault(a => a.Name == "oslist");
+                                        if (oslist != null && oslist.Value.ToString() == "windows")
+                                        {
+                                            game.Path = launchthing["executable"].ToString();
+                                        }
+                                        else if (oslist == null)
+                                        {
+                                            game.Path = launchthing["executable"].ToString();
+                                        }
+                                    }
+
+
+                                    
+                                }
+                            }
+                        }
+
 
                         var depots = app.Data.Children.FirstOrDefault(c => c.Name == "depots");
 
@@ -242,18 +271,18 @@ namespace WpfApp3
 
                                     if (depot.Children.FirstOrDefault(a => a.Name == "config") != default)
                                     {
-                                        var config = depot.Children.FirstOrDefault(a => a.Name == "config");
+                                        var config2 = depot.Children.FirstOrDefault(a => a.Name == "config");
 
-                                        if (config.Children.Count() > 0)
+                                        if (config2.Children.Count() > 0)
                                         {
-                                            if (config.Children.FirstOrDefault(a => a.Name == "oslist") != default)
+                                            if (config2.Children.FirstOrDefault(a => a.Name == "oslist") != default)
                                             {
-                                                if (config["oslist"].ToString() == "macos" || config["oslist"].ToString() == "linux" || config["oslist"].ToString() == "linux,macos" || config["oslist"].ToString() == "macos,linux")
+                                                if (config2["oslist"].ToString() == "macos" || config2["oslist"].ToString() == "linux" || config2["oslist"].ToString() == "linux,macos" || config2["oslist"].ToString() == "macos,linux")
                                                     continue;
                                             }
-                                            if (config.Children.FirstOrDefault(a => a.Name == "language") != default)
+                                            if (config2.Children.FirstOrDefault(a => a.Name == "language") != default)
                                             {
-                                                if (config["language"].ToString() != "english" && config["language"].ToString() != "")
+                                                if (config2["language"].ToString() != "english" && config2["language"].ToString() != "")
                                                     continue;
                                             }
                                         }

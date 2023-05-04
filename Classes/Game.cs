@@ -17,7 +17,7 @@ namespace WpfApp3.Classes
         public int SteamAppid { get; set; }
         public string Logo { get; set; }
 
-        public int Installed = 0; // 0 not installed 1 installed 2 installing
+        public int Installed = 0; // 0 not installed 1 installed 2 installing 3 paused
 
         public List<DLC> DLCs = new List<DLC>() { };
         public double Size { get; set; }
