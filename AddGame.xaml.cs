@@ -163,12 +163,6 @@ namespace WpfApp3
                 gameElement.AppendChild(logoElement);
                 game.Logo = logoElement.InnerText;
 
-                XmlElement dateElement = xmlDoc.CreateElement("date");
-                long date= DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                dateElement.InnerText = date.ToString();
-                gameElement.AppendChild(dateElement);
-                game.Date_Added = date;
-
                 XmlElement last_playedElement = xmlDoc.CreateElement("last_played");
                 last_playedElement.InnerText = "";
                 gameElement.AppendChild(last_playedElement);

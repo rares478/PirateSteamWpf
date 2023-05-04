@@ -29,18 +29,30 @@ namespace WpfApp3.Properties
         public Files(Game game1)
         {
             InitializeComponent();
-            game = game1;
 
-            DirectoryInfo folder = new DirectoryInfo(game.Path_Directory);
-            long size = 0;
+            if(game1.Installed == 0){
+                tb_Size.Text = "Not installed";
 
-            FileInfo[] files = folder.GetFiles("*.*", SearchOption.AllDirectories);
-
-            foreach (FileInfo file in files)
-            {
-                size += file.Length;
+                bt_Browse.Visibility = Visibility.Hidden;
+                bt_Backup.Visibility = Visibility.Hidden;
+                bt_Move.Visibility = Visibility.Hidden;
             }
-            tb_Size.Text = FormatBytes(size);
+            else
+            {
+                game = game1;
+
+                DirectoryInfo folder = new DirectoryInfo(game.Path_Directory);
+                long size = 0;
+
+                FileInfo[] files = folder.GetFiles("*.*", SearchOption.AllDirectories);
+
+                foreach (FileInfo file in files)
+                {
+                    size += file.Length;
+                }
+                tb_Size.Text = FormatBytes(size);
+            }
+            
         }
 
 

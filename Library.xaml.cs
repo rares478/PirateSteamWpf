@@ -21,6 +21,9 @@ using System.Windows.Navigation;
 using System.Xml.Linq;
 using System.Xml;
 using WpfApp3.Classes;
+using SteamAppInfoParser;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace WpfApp3
 {
@@ -34,6 +37,7 @@ namespace WpfApp3
         public static List<PatchNote> notes = new List<PatchNote>();
         public static List<Game> games = new List<Game>();
         public static List<Game> apps = new List<Game>();
+        private double size;
 
         public Library()
         {
@@ -139,26 +143,37 @@ namespace WpfApp3
 
             //setting up the page
 
-            tb_dlc.Text = game.DLCs.Count.ToString();
+            BitmapImage bitmapImage = new BitmapImage();
+            bitmapImage.BeginInit();
+            game.Background = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + game.SteamAppid.ToString() + "/library_hero.jpg?t=1624181121";
+            bitmapImage.UriSource = new Uri(game.Background, UriKind.Absolute);
+            bitmapImage.EndInit();
+            img_Background.Source = bitmapImage;
 
-            if (game.Background != null)
+            BitmapImage bitmapImage2 = new BitmapImage();
+            bitmapImage2.BeginInit();
+            game.Logo = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + game.SteamAppid.ToString() + "/logo.png?t=1624181121";
+            bitmapImage2.UriSource = new Uri(game.Logo, UriKind.Absolute);
+            bitmapImage2.EndInit();
+            img_Logo.Source = bitmapImage2;
+
+            if (game.Last_Played != null)
             {
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.UriSource = new Uri(game.Background, UriKind.Absolute);
-                bitmapImage.EndInit();
-                img_Background.Source = bitmapImage;
-
-                BitmapImage bitmapImage2 = new BitmapImage();
-                bitmapImage2.BeginInit();
-                bitmapImage2.UriSource = new Uri(game.Logo, UriKind.Absolute);
-                bitmapImage2.EndInit();
-                img_Logo.Source = bitmapImage2;
-
-
                 double epochTime1 = game.Last_Played;
                 DateTime dateTime1 = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epochTime1);
                 tb_LastPlayed.Text = dateTime1.ToString("MMM dd");
+            }
+
+
+            if(game.Installed == 0)
+            {
+                bt_Play.Content = "Install";
+                bt_Play.Background = new SolidColorBrush(Color.FromArgb(100, 49, 132, 226));
+
+            }
+            else if(game.Installed == 2)
+            {
+                bt_Play.Content = "Pause";
             }
 
             string url = "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=" + game.SteamAppid + "&format=json";
@@ -211,7 +226,7 @@ namespace WpfApp3
         private async void bt_Play_Click(object sender, RoutedEventArgs e)
         {
             Game game = games[lbLibrary.SelectedIndex];
-            if (game.Installed == true)
+            if (bt_Play.Content == "Play")
             {
 
                 string dir = Directory.GetCurrentDirectory();
@@ -219,10 +234,25 @@ namespace WpfApp3
                 Process.Start(game.Path);
                 Directory.SetCurrentDirectory(dir);
             }
-            else
+            else if(bt_Play.Content == "Install")
             {
                 Install install = new Install(game,this);
                 install.ShowDialog();
+
+                
+            }
+            else
+            {
+                DownloadProcess.Kill();
+                DownloadProcess.Dispose();
+
+                Process[] processes = Process.GetProcessesByName("steamcmd");
+                foreach (Process process in processes)
+                {
+                    process.Kill();
+                    process.WaitForExit(); 
+                }
+
 
             }
         }
@@ -289,30 +319,42 @@ namespace WpfApp3
             e.Handled = true;
         }
 
-        public void downloadGame(int appid, string Path, long size)
+
+        private Process DownloadProcess;
+
+        public async Task<bool> downloadGame(Game game, string path ,double size)
         {
             LoadingBar.Visibility = Visibility.Visible;
             tb_Downloading.Visibility = Visibility.Visible;
             tb_down_of_total.Visibility = Visibility.Visible;
+            tb_space_req.Visibility = Visibility.Hidden;
+            tb_Size.Visibility = Visibility.Hidden;
+            bt_Play.Content = "Pause";
+            game.Installed = 2;
             this.size = size;
-            Path = "D:\\Downloads\\tulip\\descarca aici";
 
 
-            var processInfo = new ProcessStartInfo
+            string steamcmdPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Steam", "steamcmd.exe");
+            string da = "D:\\Codeblocks\\coduri\\Visual Studio\\WpfApp3\\bin\\Debug\\net7.0-windows\\Steam\\RTconsole.exe";
+            ProcessStartInfo DownloadProcessInfo = new ProcessStartInfo
             {
-                FileName = "D:\\Downloads\\tulip\\downloader\\DepotDownloader.exe",
-                Arguments = $"-app 1326470 -username {MainWindow.User.Username} -password {MainWindow.User.Password}{(Path != null ? $" -dir \"{Path}\"" : $" -dir \"{AppContext.BaseDirectory}\\manifest\"")}",
-                CreateNoWindow = true,
+                FileName = da,
+                UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
-                UseShellExecute = false
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                Arguments = steamcmdPath + $" +force_install_dir {path} +login rares478 +app_update {game.SteamAppid} validate"
             };
 
-            var process = new Process { StartInfo = processInfo };
-            process.OutputDataReceived += Process_OutputDataReceived;
-            process.Start();
-            process.BeginOutputReadLine();
-            process.StandardInput.WriteLine("rpkck");
+            DownloadProcess = new Process();
+            DownloadProcess.StartInfo = DownloadProcessInfo;
+            DownloadProcess.OutputDataReceived += Process_OutputDataReceived;
+            DownloadProcess.Start();
+            DownloadProcess.BeginOutputReadLine();
+            await DownloadProcess.WaitForExitAsync();
+            return true;
         }
 
         private void UpdateLoadingBar(string percentageString)
@@ -321,15 +363,13 @@ namespace WpfApp3
             
             if (float.TryParse(percentageString.TrimEnd('%'), out percentage))
             {
-                tb_down_of_total.Text = Util.FormatBytes(Convert.ToInt64(percentage * size / 100)) + " of " + Util.FormatBytes(size);
                 Dispatcher.Invoke(() =>
                 {
+                    tb_down_of_total.Text = Util.FormatBytes(Convert.ToInt64(percentage * size / 100)) + " of " + Util.FormatBytes(size);
                     LoadingBar.Value = percentage;
                 });
             }
         }
-
-        private long size;
 
         private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
@@ -343,16 +383,14 @@ namespace WpfApp3
                 });
 
                 int percentageIndex = outputText.LastIndexOf('%');
+                Match match = Regex.Match(outputText, @"progress: (\d+\.\d+)");
+                if(match.Success) {
+                    {
+                        string progressstr = match.Groups[1].Value;
+                        double progress = double.Parse(progressstr);
 
-                if (percentageIndex != -1)
-                {
-                    int startIndex = outputText.LastIndexOf(' ', percentageIndex) + 1;
-                    int length = percentageIndex - startIndex + 1;
-
-                    string percentage = outputText.Substring(startIndex, length);
-
-                    // Update the loading bar with the extracted percentage
-                    UpdateLoadingBar(percentage);
+                        UpdateLoadingBar(progressstr);
+                    }
                 }
             }
         }

@@ -32,38 +32,7 @@ namespace WpfApp3
 
         public UpdateSteamCMD()
         {
-            Directory.CreateDirectory(path);
-            string GamesXml = path + "\\Games.xml";
-            /*if (File.Exists(GamesXml))
-            {
-                XmlDocument doc = new XmlDocument();
-                doc.Load(GamesXml);
-
-                XmlNodeList gameNodes = doc.SelectNodes("/games/game");
-
-                foreach (XmlNode gameNode in gameNodes)
-                {
-                    
-                    Game game = new Game();
-
-                    game.Title = gameNode.SelectSingleNode("title").InnerText.Trim();
-                    game.Path = gameNode.SelectSingleNode("path").InnerText;
-                    game.Path_Directory = gameNode.SelectSingleNode("path_directory").InnerText;
-                    game.Type = gameNode.SelectSingleNode("type").InnerText;
-                    game.Background = gameNode.SelectSingleNode("background").InnerText;
-                    game.Logo = gameNode.SelectSingleNode("logo").InnerText;
-                    game.Date_Added = long.Parse(gameNode.SelectSingleNode("date").InnerText);
-                    if (gameNode.SelectSingleNode("last_played").InnerText == "")
-                    {
-                        game.Last_Played = 0;
-                    }
-                    else
-                        game.Last_Played = long.Parse(gameNode.SelectSingleNode("last_played").InnerText);
-                    game.SteamAppid = int.Parse(gameNode.SelectSingleNode("steamappid").InnerText);
-                    game.Installed = true;
-                    games.Add(game);
-                }
-            }*/
+            
 
 
             InitializeComponent();
@@ -115,6 +84,11 @@ namespace WpfApp3
                 if(output.Contains("to Steam Public...OK"))
                     uptodate = true;
 
+                this.Dispatcher.Invoke(() =>
+                {
+                    textBox.AppendText(output + Environment.NewLine);
+                });
+
 
                 if (uptodate == false)
                 {
@@ -149,6 +123,41 @@ namespace WpfApp3
                         if(await Process_Games())
                         {
                             done_games = true;
+
+
+                            Directory.CreateDirectory(path);
+                            string GamesXml = path + "\\Games.xml";
+                            if (File.Exists(GamesXml))
+                            {
+                                XmlDocument doc = new XmlDocument();
+                                doc.Load(GamesXml);
+
+                                XmlNodeList gameNodes = doc.SelectNodes("/games/game");
+
+                                foreach (XmlNode gameNode in gameNodes)
+                                {
+
+                                    Game game = new Game();
+
+                                    game.Title = gameNode.SelectSingleNode("title").InnerText.Trim() + " Cracked";
+                                    game.Path = gameNode.SelectSingleNode("path").InnerText;
+                                    game.Path_Directory = gameNode.SelectSingleNode("path_directory").InnerText;
+                                    game.Type = gameNode.SelectSingleNode("type").InnerText;
+                                    game.Background = gameNode.SelectSingleNode("background").InnerText;
+                                    game.Logo = gameNode.SelectSingleNode("logo").InnerText;
+                                    if (gameNode.SelectSingleNode("last_played").InnerText == "")
+                                    {
+                                        game.Last_Played = 0;
+                                    }
+                                    else
+                                        game.Last_Played = long.Parse(gameNode.SelectSingleNode("last_played").InnerText);
+                                    game.SteamAppid = int.Parse(gameNode.SelectSingleNode("steamappid").InnerText);
+                                    game.Installed = 1;
+                                    Items.Add(game);
+                                }
+                            }
+
+
                             this.Dispatcher.Invoke(() =>
                             {
                                 LoadingBar.Value = 100;
